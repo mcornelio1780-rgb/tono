@@ -1,0 +1,46 @@
+rules_version = '2';
+// Reglas de seguridad de Tono (Firestore). Pégalas en Firebase > Firestore > Reglas > Publicar.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function okEmail(e) { return e is string && e.size() < 200 && e.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$'); }
+    function str(v, n) { return v is string && v.size() <= n; }
+    // Correos que pueden ver el panel admin.html (agrega más entre comillas, separados por coma)
+    function isAdmin() { return request.auth != null && request.auth.token.email_verified == true
+      && request.auth.token.email in ['manyosa@limly.io']; }
+
+    // Correos de la landing (lista de muletillas). Cualquiera puede ENVIAR, nadie puede LEER desde la web.
+    match /leads/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['email','role','source','lang','consent','page','createdAt'])
+        && okEmail(request.resource.data.email) && str(request.resource.data.role, 120)
+        && str(request.resource.data.source, 60) && str(request.resource.data.lang, 5)
+        && request.resource.data.consent is bool && str(request.resource.data.page, 200);
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // Formulario de contacto / preguntas.
+    match /contacts/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name','email','topic','message','lang','uid','createdAt'])
+        && okEmail(request.resource.data.email) && str(request.resource.data.name, 120)
+        && str(request.resource.data.topic, 60) && str(request.resource.data.message, 5000)
+        && str(request.resource.data.lang, 5) && str(request.resource.data.uid, 128);
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // Perfil y Voice Packs de cada usuario: solo su dueño.
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      match /packs/{packId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // Pedidos de revisión del plan Pro: el usuario crea, solo tú los lees en la consola.
+    match /pro_requests/{id} {
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow read, delete: if isAdmin();
+      allow update: if false;
+    }
+  }
+}

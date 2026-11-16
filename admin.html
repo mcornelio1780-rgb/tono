@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tono · Panel interno</title>
+<link rel="icon" href="assets/tono-isotipo.svg">
+<style>
+:root{--cobalto:#2337E6;--papel:#F7F6F2;--grafito:#17171C;--resaltador:#FFE14A;--tachon:#E5484D;--ok:#1E8E5A;--bg:var(--papel);--fg:var(--grafito);--muted:#5A5A66;--line:#DCDCE4;--card:#fff;--soft:#EEEEF4;--accent:var(--cobalto);--serif:Georgia,serif;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111117;--fg:#F2F1ED;--muted:#A6A6B4;--line:#2A2A35;--card:#1A1A22;--soft:#22222C;--accent:#7C8BFF;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 var(--sans)}
+header{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:14px 22px;border-bottom:1px solid var(--line)}
+header b{font-family:var(--serif);font-size:22px;font-weight:400}
+.sp{flex:1}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button,.btn{border:1.5px solid var(--fg);background:transparent;color:var(--fg);border-radius:999px;padding:7px 14px;font:600 14px var(--sans);cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.btn.primary{background:var(--cobalto);border-color:var(--cobalto);color:#fff}
+main{padding:22px}
+.kpis{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 16px;min-width:150px}
+.kpi b{display:block;font-family:var(--serif);font-size:28px;font-weight:400}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--soft);font-size:12.5px;color:var(--muted)}
+td.msg{white-space:pre-wrap;max-width:520px}
+.note{background:color-mix(in srgb,var(--resaltador) 30%,transparent);border-radius:10px;padding:12px 16px;margin-bottom:16px}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+input[type=search]{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:8px;padding:8px 12px;font:14px var(--sans);min-width:220px}
+</style>
+<script src="config.js"></script>
+<script src="tono-core.js"></script>
+</head>
+<body>
+<header>
+  <b>Tono · panel interno</b>
+  <div class="tabs" id="tabs"></div>
+  <span class="sp"></span>
+  <input type="search" id="q" placeholder="Buscar…">
+  <button class="btn" id="csv">Exportar CSV</button>
+  <button class="btn" id="reload">Actualizar</button>
+  <div id="acct" data-redirect="0" data-app="app.html"></div>
+</header>
+<main>
+  <div class="note" id="note"></div>
+  <div class="kpis" id="kpis"></div>
+  <div class="wrap"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
+</main>
+<script>
+const COLS={
+  contacts:{label:"Contacto",fields:[["createdAt","Fecha"],["name","Nombre"],["email","Correo"],["topic","Tema"],["lang","Idioma"],["message","Mensaje"]]},
+  leads:{label:"Lista de correos",fields:[["createdAt","Fecha"],["email","Correo"],["role","Perfil"],["lang","Idioma"],["source","Origen"],["consent","Consentimiento"]]},
+  pro_requests:{label:"Revisiones Pro",fields:[["createdAt","Fecha"],["email","Cliente"],["name","Voz"],["plan","Plan"],["lang","Idioma"],["audience","Audiencia"],["instruction","Instrucción"]]}
+};
+let tab="contacts",rows=[];
+const $=s=>document.querySelector(s),esc=Tono.esc;
+function drawTabs(){$("#tabs").innerHTML=Object.entries(COLS).map(([k,v])=>`<button data-t="${k}" aria-pressed="${k===tab}">${v.label}</button>`).join("")}
+function draw(){
+  const f=COLS[tab].fields,q=$("#q").value.toLowerCase();
+  const list=rows.filter(r=>!q||JSON.stringify(r).toLowerCase().includes(q));
+  $("#th").innerHTML="<tr>"+f.map(x=>`<th>${x[1]}</th>`).join("")+"</tr>";
+  $("#tb").innerHTML=list.length?list.map(r=>"<tr>"+f.map(([k])=>{let v=r[k];if(k==="createdAt")v=String(v||"").replace("T"," ").slice(0,16);if(k==="email")return`<td><a href="mailto:${esc(v)}">${esc(v)}</a></td>`;return`<td class="${k==="message"||k==="instruction"?"msg":""}">${esc(typeof v==="string"&&v.length>600?v.slice(0,600)+"…":v)}</td>`}).join("")+"</tr>").join(""):`<tr><td colspan="${f.length}" class="empty">Sin registros todavía.</td></tr>`;
+  const today=new Date().toISOString().slice(0,10);
+  $("#kpis").innerHTML=`<div class="kpi"><b>${rows.length}</b>total</div><div class="kpi"><b>${rows.filter(r=>String(r.createdAt).startsWith(today)).length}</b>hoy</div>`;
+}
+async function load(){
+  try{rows=await Tono.Data.adminList(tab);$("#note").textContent=Tono.cloud?"Datos en vivo de Firebase (Firestore).":Tono.demo?"Modo demo: estás viendo lo que se envió desde este mismo navegador.":"Firebase aún no está conectado: cada mensaje, suscripción y pedido Pro te llega por correo a "+((Tono.config||{}).notifyEmail||"(configura notifyEmail)")+". Este panel se llena cuando conectes Firebase."}
+  catch(e){rows=[];$("#note").textContent="No tienes permiso para ver estos datos. Entra con un correo administrador (el que pusiste en las reglas de Firestore) y con el correo activado."}
+  draw();
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(b){tab=b.dataset.t;drawTabs();load()}});
+$("#q").oninput=draw;$("#reload").onclick=load;
+$("#csv").onclick=()=>{const f=COLS[tab].fields;const csv=[f.map(x=>x[1]).join(",")].concat(rows.map(r=>f.map(([k])=>`"${String(r[k]==null?"":r[k]).replace(/"/g,'""')}"`).join(","))).join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"}));a.download=`tono-${tab}-${new Date().toISOString().slice(0,10)}.csv`;a.click()};
+Tono.mountAccount($("#acct"));
+Tono.ready.then(()=>{drawTabs();Tono.onUser(()=>load())});
+</script>
+</body>
+</html>

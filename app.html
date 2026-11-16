@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tono Studio</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%232337E6'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='13' stroke-linecap='round'%3E%3Cpath d='M50 34V78'/%3E%3Cpath d='M20 34C29 21 40 23 50 34S71 47 80 34'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=Hanken+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--cobalto:#2337E6;--papel:#F7F6F2;--grafito:#17171C;--resaltador:#FFE14A;--tachon:#E5484D;--ok:#1E8E5A;
+--bg:var(--papel);--fg:var(--grafito);--muted:#5A5A66;--line:#DCDCE4;--card:#fff;--soft:#EEEEF4;--accent:var(--cobalto);
+--serif:"Fraunces",Georgia,serif;--sans:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111117;--fg:#F2F1ED;--muted:#A6A6B4;--line:#2A2A35;--card:#1A1A22;--soft:#22222C;--accent:#7C8BFF;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111117;--fg:#F2F1ED;--muted:#A6A6B4;--line:#2A2A35;--card:#1A1A22;--soft:#22222C;--accent:#7C8BFF;color-scheme:dark}
+*,*::before,*::after{box-sizing:inherit}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--resaltador);outline-offset:2px}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100%}
+aside{border-right:1px solid var(--line);padding:22px 16px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;margin:0 8px 22px}
+.brand .wm{width:70px;color:var(--accent)}
+.brand span{font-size:13px;color:var(--muted)}
+.tab{display:flex;gap:10px;align-items:center;text-align:left;border:none;background:none;padding:11px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:500}
+.tab svg{width:20px;height:20px;flex:none}
+.tab[aria-selected="true"]{background:var(--soft);color:var(--fg)}
+.tab .step{margin-left:auto;font-size:12px;opacity:.7}
+.side-bottom{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+.langs{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px}
+.langs button{flex:1;border:none;background:none;color:var(--muted);font-weight:600;font-size:12.5px;padding:6px 0;border-radius:999px;cursor:pointer}
+.langs button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.small{font-size:13px;color:var(--muted)}
+main{padding:34px clamp(18px,4vw,48px) 80px;max-width:1100px;width:100%}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(32px,4vw,46px);line-height:1.05;margin:0 0 8px;letter-spacing:-.015em}
+h2{font-family:var(--serif);font-weight:400;font-size:26px;margin:30px 0 12px}
+.lede{color:var(--muted);max-width:66ch;margin:0 0 24px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:900px){.app{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:1px solid var(--line)}.brand{margin:0 8px 0 0}.side-bottom{margin:0;flex-direction:row;width:100%}.tab .step{display:none}.grid2,.grid4{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.grid2,.grid4{grid-template-columns:1fr}}
+label{font-weight:600;font-size:14px;display:block;margin-bottom:6px}
+input[type=text],input[type=email],input[type=password],input[type=date],select,textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:11px 13px}
+textarea{min-height:120px;resize:vertical;font-family:var(--serif);font-size:16.5px;line-height:1.55}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--fg);background:transparent;border-radius:999px;padding:10px 18px;font-weight:600;font-size:14.5px;cursor:pointer;text-decoration:none}
+.btn.primary{background:var(--cobalto);border-color:var(--cobalto);color:#fff}
+.btn.hl{background:var(--resaltador);border-color:var(--resaltador);color:#17171C}
+.btn.sm{padding:6px 12px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.texts{display:flex;flex-direction:column;gap:12px}
+.textbox{position:relative}
+.textbox .meta{position:absolute;right:10px;bottom:8px;font-size:12px;color:var(--muted);background:var(--bg);padding:0 6px}
+.textbox .rm{position:absolute;right:8px;top:8px;border:none;background:var(--soft);border-radius:6px;cursor:pointer;font-size:12px;padding:3px 8px}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;color:var(--muted);font-size:14px}
+.drop.on{border-color:var(--cobalto);color:var(--fg)}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
+.kpi b{display:block;font-family:var(--serif);font-size:32px;font-weight:400;line-height:1.1}
+.kpi span{font-size:13px;color:var(--muted)}
+.kpi em{display:block;font-style:normal;font-size:12.5px;margin-top:4px}
+.bar{display:grid;grid-template-columns:170px 1fr 1fr;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.bar .track{height:10px;background:var(--soft);border-radius:6px;overflow:hidden}
+.bar .fill{height:100%;border-radius:6px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:var(--soft);border-radius:999px;padding:4px 11px;font-size:13.5px}
+.tag.bad{background:color-mix(in srgb,var(--tachon) 15%,transparent)}
+.tag button{border:none;background:none;cursor:pointer;margin-left:4px;color:var(--muted)}
+pre.out{white-space:pre-wrap;font:13.5px/1.6 var(--mono);background:var(--soft);border-radius:10px;padding:18px;max-height:560px;overflow:auto;margin:0}
+mark.t{background:color-mix(in srgb,var(--tachon) 18%,transparent);color:inherit;text-decoration:line-through;text-decoration-color:var(--tachon);border-radius:3px;cursor:help}
+.det{font-family:var(--serif);font-size:18px;line-height:1.65;white-space:pre-wrap;min-height:120px}
+.empty{padding:40px;text-align:center;color:var(--muted);border:1.5px dashed var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:12.5px}
+.tblw{overflow-x:auto}
+.pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.late{color:var(--tachon);font-weight:700}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--grafito);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.on{opacity:1}
+.hidden{display:none!important}
+svg.rhythm{width:100%;height:150px;display:block}
+.warn{background:color-mix(in srgb,var(--resaltador) 35%,transparent);border-radius:8px;padding:10px 14px;font-size:14px}
+.score{font-family:var(--serif);font-size:56px;line-height:1}
+@media print{aside,.noprint{display:none!important}.app{display:block}main{padding:0}pre.out{max-height:none;background:none;border:1px solid #ccc}}
+.gate{max-width:640px;margin:8vh auto 0;text-align:left}
+.gate h1{font-size:clamp(36px,5vw,56px)}
+.gate ul{padding-left:20px;line-height:1.8;color:var(--muted)}
+.bar-note{border-radius:10px;padding:14px 16px;margin:0 0 20px;font-size:14.5px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.bar-note.warn{background:color-mix(in srgb,var(--resaltador) 35%,transparent)}
+.bar-note.okb{background:color-mix(in srgb,var(--ok) 15%,transparent)}
+.bar-note .sp{flex:1}
+.lock{border:1.5px solid var(--cobalto);border-radius:12px;padding:20px;margin:18px 0;background:var(--card)}
+.lock h3{font-family:var(--serif);font-weight:400;font-size:26px;margin:0 0 6px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.plan{border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.plan.feat{border-color:var(--cobalto);box-shadow:inset 0 0 0 1px var(--cobalto)}
+.plan b{font-family:var(--serif);font-weight:400;font-size:30px;line-height:1}
+.plan .small{flex:1}
+.keyrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.keyrow input{flex:1 1 260px;font-family:var(--mono)}
+.blur{filter:blur(5px);user-select:none;pointer-events:none;margin-top:-6px;border-top-left-radius:0;border-top-right-radius:0}
+.unlocked-badge{display:inline-flex;gap:6px;align-items:center;background:color-mix(in srgb,var(--ok) 15%,transparent);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600}
+.saved-list{display:grid;gap:12px}
+.saved-item{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.saved-item .sp{flex:1}
+#acct{margin-bottom:6px}
+#acct .btn-ghost{width:100%;justify-content:center}
+.admin-only.hidden{display:none!important}
+@media (max-width:760px){.plans{grid-template-columns:1fr}}
+@media (max-width:900px){
+  .side-bottom{flex-wrap:wrap;align-items:center;gap:10px}
+  .side-bottom .langs{flex:0 0 auto}
+  .side-bottom .langs button{flex:0 0 auto;padding:6px 10px}
+  .side-bottom > .small{flex:1 0 100%}
+  #acct{margin:0}
+  #acct .btn-ghost{width:auto}
+  body.noauth .tab{display:none}
+}
+</style>
+<script src="config.js"></script>
+<script src="tono-core.js"></script>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="brand"><div class="wm" id="wm"></div><span>Studio</span></div>
+  <button class="tab" data-tab="analyze" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M3 12c3-6 6-6 9 0s6 6 9 0"/></svg><span data-i="tab_analyze"></span><span class="step">1</span></button>
+  <button class="tab" data-tab="pack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M5 20h14"/></svg><span data-i="tab_pack"></span><span class="step">2</span></button>
+  <button class="tab" data-tab="detect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 12h16"/><path d="M7 7h10M7 17h6"/></svg><span data-i="tab_detect"></span></button>
+  <button class="tab" data-tab="rewrite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 20l4-1L19 8l-3-3L5 16z"/></svg><span data-i="tab_rewrite"></span></button>
+  <button class="tab" data-tab="saved"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg><span data-i="tab_saved"></span></button>
+  <button class="tab admin-only hidden" data-tab="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span data-i="tab_orders"></span></button>
+  <div class="side-bottom">
+    <div id="acct" data-app="app.html" data-redirect="0"></div>
+    <div class="langs" role="group" aria-label="Language"><button data-lang="es">ES</button><button data-lang="en">EN</button><button data-lang="pt">PT</button><button data-lang="fr">FR</button></div>
+    <button class="btn sm" id="themeBtn" type="button" data-i="theme"></button>
+    <div class="small" data-i="privacy"></div>
+  </div>
+</aside>
+
+<main>
+<section id="gate" class="gate hidden">
+  <h1 data-i="gate_h"></h1>
+  <p class="lede" data-i="gate_p"></p>
+  <ul id="gatePoints"></ul>
+  <div class="row" style="margin-top:18px"><button class="btn primary" id="gateSignup" data-i="gate_signup"></button><button class="btn" id="gateLogin" data-i="gate_login"></button></div>
+  <p class="small" style="margin-top:18px" id="gateLegal"></p>
+</section>
+<div id="bars-top">
+  <div class="bar-note warn hidden" id="verifyBar"><span id="verifyTxt"></span><span class="sp"></span><button class="btn sm" id="vResend" data-i="v_resend"></button><button class="btn sm primary" id="vCheck" data-i="v_check"></button></div>
+  <div class="bar-note okb hidden" id="paidBar"><span data-i="paid_bar"></span></div>
+</div>
+<!-- 1. ANALYZE -->
+<section data-view="analyze">
+  <h1 data-i="a_h"></h1>
+  <p class="lede" data-i="a_lede"></p>
+  <div class="grid2" style="margin-bottom:16px">
+    <div><label for="pName" data-i="a_name"></label><input type="text" id="pName"></div>
+    <div><label for="pUse" data-i="a_use"></label><select id="pUse"></select></div>
+  </div>
+  <div class="drop" id="drop" data-i="a_drop"></div>
+  <input type="file" id="fileIn" accept=".txt,.md,.csv,.html" multiple class="hidden">
+  <div class="texts" id="texts" style="margin-top:14px"></div>
+  <div class="row" style="margin-top:14px">
+    <button class="btn" id="addText" data-i="a_add"></button>
+    <button class="btn" id="loadDemo" data-i="a_demo"></button>
+    <span class="sp" style="flex:1"></span>
+    <span class="small" id="countInfo"></span>
+    <button class="btn primary" id="runAnalysis" data-i="a_run"></button>
+  </div>
+  <div id="results" class="hidden">
+    <h2 data-i="r_h"></h2>
+    <div class="grid4" id="kpis"></div>
+    <h2 data-i="r_vs"></h2>
+    <div class="panel" id="bars"></div>
+    <h2 data-i="r_rhythm"></h2>
+    <div class="panel"><svg class="rhythm" id="rhythm" preserveAspectRatio="none"></svg><div class="small" data-i="r_rhythm_note"></div></div>
+    <div class="grid2" style="margin-top:6px">
+      <div><h2 data-i="r_words"></h2><div class="tags" id="sigWords"></div></div>
+      <div><h2 data-i="r_openers"></h2><div class="tags" id="openers"></div></div>
+    </div>
+    <h2 data-i="r_own"></h2><div class="tags" id="ownTells"></div>
+    <div class="row" style="margin-top:26px"><button class="btn primary" data-goto="pack" data-i="r_next"></button></div>
+  </div>
+</section>
+
+<!-- 2. PACK -->
+<section data-view="pack" class="hidden">
+  <h1 data-i="p_h"></h1>
+  <p class="lede" data-i="p_lede"></p>
+  <div id="packEmpty" class="empty" data-i="p_empty"></div>
+  <div id="packBody" class="hidden">
+    <div class="grid2">
+      <div><label data-i="p_ban"></label><div class="tags" id="customBan"></div><div class="row" style="margin-top:8px"><input type="text" id="banIn" style="flex:1"><button class="btn sm" id="banAdd" data-i="p_add"></button></div></div>
+      <div><label for="pAudience" data-i="p_aud"></label><input type="text" id="pAudience"><label for="pAddress" style="margin-top:12px" data-i="p_addr"></label><select id="pAddress"></select></div>
+    </div>
+    <div class="lock noprint hidden" id="lockBox">
+      <h3 data-i="lock_h"></h3>
+      <p class="small" data-i="lock_p"></p>
+      <div class="plans" id="planCards"></div>
+      <label for="keyIn" data-i="have_key"></label>
+      <div class="keyrow"><input type="text" id="keyIn" autocomplete="off" spellcheck="false"><button class="btn primary" id="keyGo" data-i="activate"></button></div>
+      <div class="small" id="keyMsg" role="status" style="margin-top:8px"></div>
+      <div class="small hidden" id="demoKeys" style="margin-top:6px"></div>
+      <p class="small" style="margin-top:8px"><a id="portalLink" target="_blank" rel="noopener" data-i="portal"></a></p>
+    </div>
+    <div class="row noprint hidden" id="unlockedRow" style="margin-top:14px"><span class="unlocked-badge" id="planBadge"></span><span class="small" id="voicesInfo"></span></div>
+    <div class="row noprint" style="margin:18px 0">
+      <button class="btn primary" id="copyInstr" data-i="p_copyi"></button>
+      <button class="btn" id="savePack" data-i="save_cloud"></button>
+      <button class="btn hidden" id="proReq" data-i="pro_req"></button>
+      <button class="btn" id="dlMd" data-i="p_dl"></button>
+      <button class="btn" id="printPack" data-i="p_print"></button>
+      <button class="btn" id="dlTells" data-i="p_tells"></button>
+    </div>
+    <pre class="out" id="packOut"></pre>
+    <pre class="out blur hidden" id="packBlur" aria-hidden="true"></pre>
+  </div>
+</section>
+
+<!-- 3. DETECT -->
+<section data-view="detect" class="hidden">
+  <h1 data-i="d_h"></h1>
+  <p class="lede" data-i="d_lede"></p>
+  <textarea id="detIn" style="min-height:180px"></textarea>
+  <div class="grid2" style="margin-top:16px;align-items:start">
+    <div class="panel"><div class="small" data-i="d_score"></div><div class="score" id="detScore">0</div><div class="small" id="detVerdict"></div><div class="tags" id="detHits" style="margin-top:10px"></div></div>
+    <div class="panel"><div class="small" data-i="d_marked"></div><div class="det" id="detOut"></div></div>
+  </div>
+</section>
+
+<!-- 4. REWRITE -->
+<section data-view="rewrite" class="hidden">
+  <h1 data-i="w_h"></h1>
+  <p class="lede" data-i="w_lede"></p>
+  <label for="wIn" data-i="w_in"></label>
+  <textarea id="wIn" style="min-height:160px"></textarea>
+  <div class="row" style="margin-top:14px">
+    <button class="btn primary" id="copyPrompt" data-i="w_copy"></button>
+    <a class="btn" href="https://claude.ai/new" target="_blank" rel="noopener">Claude</a>
+    <a class="btn" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a>
+    <a class="btn" href="https://gemini.google.com/" target="_blank" rel="noopener">Gemini</a>
+  </div>
+  <details style="margin-top:26px" class="panel">
+    <summary style="cursor:pointer;font-weight:600" data-i="w_api"></summary>
+    <p class="small" data-i="w_api_note"></p>
+    <div class="grid2"><div><label for="apiKey">Anthropic API key</label><input type="password" id="apiKey" autocomplete="off"></div><div><label for="apiModel" data-i="w_model"></label><input type="text" id="apiModel" value="claude-haiku-5-5"></div></div>
+    <div class="row" style="margin-top:12px"><button class="btn primary" id="runApi" data-i="w_run"></button><span class="small" id="apiStatus"></span></div>
+    <pre class="out" id="apiOut" style="margin-top:14px;min-height:60px"></pre>
+  </details>
+</section>
+
+<!-- MIS PACKS -->
+<section data-view="saved" class="hidden">
+  <h1 data-i="saved_h"></h1>
+  <p class="lede" data-i="saved_p"></p>
+  <div class="saved-list" id="savedList"></div>
+</section>
+
+<!-- 5. ORDERS -->
+<section data-view="orders" class="hidden">
+  <h1 data-i="o_h"></h1>
+  <p class="lede" data-i="o_lede"></p>
+  <div class="panel">
+    <div class="grid4">
+      <div><label for="oName" data-i="o_client"></label><input type="text" id="oName"></div>
+      <div><label for="oEmail">Email</label><input type="email" id="oEmail"></div>
+      <div><label for="oPlan" data-i="o_plan"></label><select id="oPlan"><option value="49">Voice Pack $49</option><option value="199">Pro $199</option><option value="499">Agency $499</option><option value="0">Beta $0</option></select></div>
+      <div><label for="oLang" data-i="o_lang"></label><select id="oLang"><option>ES</option><option>EN</option><option>PT</option><option>FR</option></select></div>
+    </div>
+    <div class="row" style="margin-top:12px"><input type="text" id="oNotes" style="flex:1"><button class="btn primary" id="oAdd" data-i="o_add"></button></div>
+  </div>
+  <div class="grid4" id="oKpis" style="margin:16px 0"></div>
+  <div class="tblw"><table><thead><tr><th data-i="o_client"></th><th>Email</th><th data-i="o_plan"></th><th data-i="o_lang"></th><th data-i="o_status"></th><th data-i="o_due"></th><th></th></tr></thead><tbody id="oRows"></tbody></table></div>
+  <div class="row noprint" style="margin-top:16px"><button class="btn" id="oCsv" data-i="o_csv"></button><button class="btn" id="oJson" data-i="o_json"></button><label class="btn" style="margin:0;font-weight:600"><span data-i="o_import"></span><input type="file" id="oImport" accept=".json" class="hidden"></label></div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ===================== I18N ===================== */
+const UI={
+es:{tab_analyze:"Analizar voz",tab_pack:"Voice Pack",tab_detect:"Detector",tab_rewrite:"Escribir con mi voz",tab_orders:"Pedidos",theme:"Claro / oscuro",privacy:"Todo se procesa en tu navegador. Nada se envía a ningún servidor.",
+a_h:"Analiza una voz",a_lede:"Pega entre 5 y 20 textos de la misma persona: posts, newsletters, correos. Cuanto más variados, mejor.",a_name:"Nombre de la persona o marca",a_use:"Dónde publica sobre todo",a_drop:"Arrastra aquí archivos .txt o .md, o haz clic para elegirlos",a_add:"Añadir texto",a_demo:"Cargar ejemplo",a_run:"Analizar",a_ph:"Pega aquí un texto…",a_words:"palabras",a_need:"Faltan textos: mínimo 3 con 40+ palabras cada uno.",
+uses:["LinkedIn","Newsletter / Substack","Instagram / TikTok","Correo y propuestas","Blog / medio"],
+r_h:"La huella de esta voz",r_vs:"Comparada con la IA genérica",r_rhythm:"Ritmo: largo de cada frase",r_rhythm_note:"Cada barra es una frase. Una voz humana sube y baja; la IA tiende a una línea plana.",r_words:"Palabras firma",r_openers:"Cómo empieza",r_own:"Muletillas de IA que ya aparecen en sus textos",r_none:"Ninguna. Buena señal.",r_next:"Generar el Voice Pack",
+k_avg:"palabras por frase",k_var:"variación del ritmo",k_lex:"riqueza de vocabulario",k_q:"preguntas cada 100 frases",k_emoji:"emojis cada 1.000 palabras",k_para:"frases por párrafo",k_first:"uso de primera persona",k_lang:"idioma detectado",
+vs_you:"Esta voz",vs_ai:"IA genérica",
+p_h:"Voice Pack",p_lede:"El entregable que se vende. Revísalo, añade frases prohibidas propias y descárgalo.",p_empty:"Primero analiza una voz en el paso 1.",p_ban:"Frases que esta persona nunca diría",p_add:"Añadir",p_aud:"¿Para quién escribe?",p_addr:"Cómo trata al lector",p_copyi:"Copiar instrucción maestra",p_dl:"Descargar .md",p_print:"Imprimir / PDF",p_tells:"Descargar lista de muletillas (4 idiomas)",
+addr:["Detectar automáticamente","Tú / tutear","Usted","Sin dirigirse al lector"],
+d_h:"Detector de texto robótico",d_lede:"Pega cualquier texto generado por IA. Marcamos las muletillas en español, inglés, portugués y francés.",d_score:"Índice robot",d_marked:"Texto marcado",v0:"Suena humano.",v1:"Algunas muletillas. Retócalo.",v2:"Suena a IA. Reescríbelo.",
+w_h:"Escribe con esta voz",w_lede:"Con presupuesto cero: copiamos el Voice Pack más tu borrador en un solo prompt y lo pegas en la versión gratuita de Claude, ChatGPT o Gemini.",w_in:"Tu borrador o la idea del texto",w_copy:"Copiar prompt completo",w_api:"Opcional: reescribir aquí con tu propia API key",w_api_note:"La clave se queda en esta pestaña y no se guarda. Útil cuando tengas créditos; no es necesaria para vender.",w_model:"Modelo",w_run:"Reescribir",w_need:"Primero genera un Voice Pack.",
+o_h:"Pedidos",o_lede:"Control de entregas: cada venta se entrega en menos de 48 horas.",o_client:"Cliente",o_plan:"Plan",o_lang:"Idioma",o_status:"Estado",o_due:"Entrega",o_add:"Añadir pedido",o_csv:"Exportar CSV",o_json:"Copia de seguridad",o_import:"Restaurar copia",o_notes:"Notas (origen, código de descuento…)",
+st:["Pagado","Textos recibidos","En análisis","Entregado","Testimonio pedido"],ok_rev:"ingresos",ok_n:"pedidos",ok_late:"atrasados",ok_goal:"de la meta de $1.000",del:"Borrar",copied:"Copiado",saved:"Guardado"},
+en:{tab_analyze:"Analyze voice",tab_pack:"Voice Pack",tab_detect:"Detector",tab_rewrite:"Write in my voice",tab_orders:"Orders",theme:"Light / dark",privacy:"Everything runs in your browser. Nothing is sent to any server.",
+a_h:"Analyze a voice",a_lede:"Paste 5 to 20 pieces by the same person: posts, newsletters, emails. The more varied, the better.",a_name:"Person or brand name",a_use:"Where they mostly publish",a_drop:"Drop .txt or .md files here, or click to choose",a_add:"Add text",a_demo:"Load example",a_run:"Analyze",a_ph:"Paste a text here…",a_words:"words",a_need:"Not enough writing: at least 3 texts of 40+ words.",
+uses:["LinkedIn","Newsletter / Substack","Instagram / TikTok","Email & proposals","Blog / media"],
+r_h:"This voice’s fingerprint",r_vs:"Compared with generic AI",r_rhythm:"Rhythm: length of each sentence",r_rhythm_note:"Each bar is a sentence. A human voice rises and falls; AI drifts toward a flat line.",r_words:"Signature words",r_openers:"How they open",r_own:"AI tells already present in their writing",r_none:"None. Good sign.",r_next:"Build the Voice Pack",
+k_avg:"words per sentence",k_var:"rhythm variation",k_lex:"vocabulary richness",k_q:"questions per 100 sentences",k_emoji:"emojis per 1,000 words",k_para:"sentences per paragraph",k_first:"first-person use",k_lang:"detected language",
+vs_you:"This voice",vs_ai:"Generic AI",
+p_h:"Voice Pack",p_lede:"The deliverable you sell. Review it, add the person’s own banned phrases, download.",p_empty:"Analyze a voice in step 1 first.",p_ban:"Phrases this person would never say",p_add:"Add",p_aud:"Who do they write for?",p_addr:"How they address the reader",p_copyi:"Copy master instruction",p_dl:"Download .md",p_print:"Print / PDF",p_tells:"Download AI-tells list (4 languages)",
+addr:["Detect automatically","Informal “you”","Formal","Doesn’t address the reader"],
+d_h:"Robotic text detector",d_lede:"Paste any AI-generated text. We flag tells in English, Spanish, Portuguese and French.",d_score:"Robot score",d_marked:"Marked text",v0:"Sounds human.",v1:"A few tells. Touch it up.",v2:"Reads like AI. Rewrite it.",
+w_h:"Write in this voice",w_lede:"Zero budget: we bundle the Voice Pack and your draft into one prompt you paste into free Claude, ChatGPT or Gemini.",w_in:"Your draft or idea",w_copy:"Copy full prompt",w_api:"Optional: rewrite here with your own API key",w_api_note:"The key stays in this tab and is never stored. Handy once you have credits; not needed to sell.",w_model:"Model",w_run:"Rewrite",w_need:"Build a Voice Pack first.",
+o_h:"Orders",o_lede:"Delivery tracker: every sale delivered within 48 hours.",o_client:"Client",o_plan:"Plan",o_lang:"Language",o_status:"Status",o_due:"Due",o_add:"Add order",o_csv:"Export CSV",o_json:"Backup",o_import:"Restore backup",o_notes:"Notes (source, discount code…)",
+st:["Paid","Texts received","Analyzing","Delivered","Testimonial asked"],ok_rev:"revenue",ok_n:"orders",ok_late:"late",ok_goal:"of the $1,000 goal",del:"Delete",copied:"Copied",saved:"Saved"},
+pt:{tab_analyze:"Analisar voz",tab_pack:"Voice Pack",tab_detect:"Detector",tab_rewrite:"Escrever com minha voz",tab_orders:"Pedidos",theme:"Claro / escuro",privacy:"Tudo roda no seu navegador. Nada é enviado a servidor algum.",
+a_h:"Analise uma voz",a_lede:"Cole de 5 a 20 textos da mesma pessoa: posts, newsletters, e-mails. Quanto mais variados, melhor.",a_name:"Nome da pessoa ou marca",a_use:"Onde mais publica",a_drop:"Arraste arquivos .txt ou .md aqui, ou clique para escolher",a_add:"Adicionar texto",a_demo:"Carregar exemplo",a_run:"Analisar",a_ph:"Cole um texto aqui…",a_words:"palavras",a_need:"Faltam textos: mínimo 3 com 40+ palavras cada.",
+uses:["LinkedIn","Newsletter / Substack","Instagram / TikTok","E-mail e propostas","Blog / veículo"],
+r_h:"A impressão digital desta voz",r_vs:"Comparada com a IA genérica",r_rhythm:"Ritmo: tamanho de cada frase",r_rhythm_note:"Cada barra é uma frase. Uma voz humana sobe e desce; a IA tende a uma linha reta.",r_words:"Palavras-assinatura",r_openers:"Como começa",r_own:"Vícios de IA que já aparecem nos textos",r_none:"Nenhum. Bom sinal.",r_next:"Gerar o Voice Pack",
+k_avg:"palavras por frase",k_var:"variação do ritmo",k_lex:"riqueza de vocabulário",k_q:"perguntas a cada 100 frases",k_emoji:"emojis a cada 1.000 palavras",k_para:"frases por parágrafo",k_first:"uso da primeira pessoa",k_lang:"idioma detectado",
+vs_you:"Esta voz",vs_ai:"IA genérica",
+p_h:"Voice Pack",p_lede:"O entregável que você vende. Revise, adicione frases proibidas próprias e baixe.",p_empty:"Primeiro analise uma voz no passo 1.",p_ban:"Frases que essa pessoa nunca diria",p_add:"Adicionar",p_aud:"Para quem escreve?",p_addr:"Como trata o leitor",p_copyi:"Copiar instrução mestra",p_dl:"Baixar .md",p_print:"Imprimir / PDF",p_tells:"Baixar lista de vícios (4 idiomas)",
+addr:["Detectar automaticamente","Você (informal)","Formal (o senhor / a senhora)","Não se dirige ao leitor"],
+d_h:"Detector de texto robótico",d_lede:"Cole qualquer texto gerado por IA. Marcamos os vícios em português, espanhol, inglês e francês.",d_score:"Índice robô",d_marked:"Texto marcado",v0:"Soa humano.",v1:"Alguns vícios. Dê um retoque.",v2:"Soa como IA. Reescreva.",
+w_h:"Escreva com esta voz",w_lede:"Custo zero: juntamos o Voice Pack e o seu rascunho em um único prompt para colar no Claude, ChatGPT ou Gemini grátis.",w_in:"Seu rascunho ou ideia",w_copy:"Copiar prompt completo",w_api:"Opcional: reescrever aqui com sua própria API key",w_api_note:"A chave fica nesta aba e não é salva. Útil quando houver créditos; não é necessária para vender.",w_model:"Modelo",w_run:"Reescrever",w_need:"Gere um Voice Pack primeiro.",
+o_h:"Pedidos",o_lede:"Controle de entregas: toda venda entregue em menos de 48 horas.",o_client:"Cliente",o_plan:"Plano",o_lang:"Idioma",o_status:"Status",o_due:"Entrega",o_add:"Adicionar pedido",o_csv:"Exportar CSV",o_json:"Backup",o_import:"Restaurar backup",o_notes:"Notas (origem, cupom…)",
+st:["Pago","Textos recebidos","Em análise","Entregue","Depoimento pedido"],ok_rev:"receita",ok_n:"pedidos",ok_late:"atrasados",ok_goal:"da meta de US$1.000",del:"Apagar",copied:"Copiado",saved:"Salvo"},
+fr:{tab_analyze:"Analyser une voix",tab_pack:"Voice Pack",tab_detect:"Détecteur",tab_rewrite:"Écrire avec ma voix",tab_orders:"Commandes",theme:"Clair / sombre",privacy:"Tout est traité dans votre navigateur. Rien n’est envoyé à un serveur.",
+a_h:"Analysez une voix",a_lede:"Collez 5 à 20 textes de la même personne : posts, newsletters, e-mails. Plus ils sont variés, mieux c’est.",a_name:"Nom de la personne ou de la marque",a_use:"Où elle publie surtout",a_drop:"Déposez des fichiers .txt ou .md ici, ou cliquez pour choisir",a_add:"Ajouter un texte",a_demo:"Charger un exemple",a_run:"Analyser",a_ph:"Collez un texte ici…",a_words:"mots",a_need:"Pas assez de matière : au moins 3 textes de 40 mots ou plus.",
+uses:["LinkedIn","Newsletter / Substack","Instagram / TikTok","E-mails et propositions","Blog / média"],
+r_h:"L’empreinte de cette voix",r_vs:"Comparée à une IA générique",r_rhythm:"Rythme : longueur de chaque phrase",r_rhythm_note:"Chaque barre est une phrase. Une voix humaine monte et descend ; l’IA tend vers une ligne plate.",r_words:"Mots signature",r_openers:"Ses attaques",r_own:"Tics d’IA déjà présents dans ses textes",r_none:"Aucun. Bon signe.",r_next:"Créer le Voice Pack",
+k_avg:"mots par phrase",k_var:"variation du rythme",k_lex:"richesse du vocabulaire",k_q:"questions pour 100 phrases",k_emoji:"emojis pour 1 000 mots",k_para:"phrases par paragraphe",k_first:"usage de la première personne",k_lang:"langue détectée",
+vs_you:"Cette voix",vs_ai:"IA générique",
+p_h:"Voice Pack",p_lede:"Le livrable que vous vendez. Relisez, ajoutez les phrases interdites propres à la personne, téléchargez.",p_empty:"Analysez d’abord une voix à l’étape 1.",p_ban:"Phrases que cette personne ne dirait jamais",p_add:"Ajouter",p_aud:"Pour qui écrit-elle ?",p_addr:"Comment elle s’adresse au lecteur",p_copyi:"Copier l’instruction maîtresse",p_dl:"Télécharger .md",p_print:"Imprimer / PDF",p_tells:"Télécharger la liste des tics (4 langues)",
+addr:["Détection automatique","Tutoiement","Vouvoiement","Ne s’adresse pas au lecteur"],
+d_h:"Détecteur de texte robotique",d_lede:"Collez un texte généré par IA. Nous repérons les tics en français, anglais, espagnol et portugais.",d_score:"Indice robot",d_marked:"Texte annoté",v0:"Ça sonne humain.",v1:"Quelques tics. À retoucher.",v2:"Ça sent l’IA. À réécrire.",
+w_h:"Écrire avec cette voix",w_lede:"Budget zéro : on assemble le Voice Pack et votre brouillon en un seul prompt à coller dans Claude, ChatGPT ou Gemini gratuits.",w_in:"Votre brouillon ou votre idée",w_copy:"Copier le prompt complet",w_api:"Optionnel : réécrire ici avec votre propre clé API",w_api_note:"La clé reste dans cet onglet et n’est jamais enregistrée. Utile avec des crédits ; inutile pour vendre.",w_model:"Modèle",w_run:"Réécrire",w_need:"Créez d’abord un Voice Pack.",
+o_h:"Commandes",o_lede:"Suivi des livraisons : chaque vente livrée en moins de 48 heures.",o_client:"Client",o_plan:"Offre",o_lang:"Langue",o_status:"Statut",o_due:"Livraison",o_add:"Ajouter",o_csv:"Exporter CSV",o_json:"Sauvegarde",o_import:"Restaurer",o_notes:"Notes (source, code promo…)",
+st:["Payé","Textes reçus","En analyse","Livré","Témoignage demandé"],ok_rev:"chiffre d’affaires",ok_n:"commandes",ok_late:"en retard",ok_goal:"de l’objectif de 1 000 $",del:"Supprimer",copied:"Copié",saved:"Enregistré"}};
+
+/* ===================== LANGUAGE DATA ===================== */
+const STOP={
+es:"a al algo algunos ante antes como con contra cual cuando de del desde donde durante e el ella ellas ellos en entre era eres es esa ese eso esta este esto estos fue fueron ha han hasta hay la las le les lo los mas más me mi mis mucho muy nada ni no nos o otra otro para pero poco por porque que qué quien se ser si sí sin sobre son su sus también te tiene todo tu tus un una uno unos y ya yo está están hace solo sólo cada así bien mismo tan qué eso ahora vez",
+en:"a about after all also am an and any are as at be been but by can could did do does for from had has have he her his how i if in into is it its just like me more most my no not now of on one or our out so some than that the their them then there these they this to too up us was we were what when which who will with would you your i'm it's don't can't i've that's",
+pt:"a ao aos as até com como da das de do dos e ela elas ele eles em entre era essa esse isso esta este está estão eu foi foram há isso já lhe mais mas me meu minha muito na nas nem no nos nós o os ou para pela pelo por porque que quem se sem ser seu sua são também te tem tu um uma você vocês só cada assim bem mesmo tão agora vez",
+fr:"à au aux avec ce ces cette dans de des du elle elles en est et être eu il ils je j la le les leur lui ma mais me même mes moi mon ne nos notre nous on ou où par pas pour qu que qui sa se ses son sur ta te tes toi ton tu un une vos votre vous c d l n s y a été était sont fait plus tout très aussi bien comme si ça"};
+Object.keys(STOP).forEach(k=>STOP[k]=new Set(STOP[k].split(" ")));
+const FIRST={es:["yo","me","mi","mis","conmigo"],en:["i","me","my","mine","i'm","i've"],pt:["eu","me","meu","minha","meus","minhas","comigo"],fr:["je","j","me","moi","mon","ma","mes"]};
+const SECOND={es:{tu:["tú","tu","te","ti","tus","contigo"],usted:["usted","ustedes"]},en:{tu:["you","your","you're"],usted:[]},pt:{tu:["você","vocês","seu","sua"],usted:["senhor","senhora"]},fr:{tu:["tu","toi","ton","ta","tes"],usted:["vous","votre","vos"]}};
+const TELLS={
+es:["en el panorama actual","es crucial","es importante destacar","cabe destacar","cabe mencionar","sumérgete","adentrémonos","juega un papel fundamental","papel crucial","en la era digital","desbloquea","desbloquear tu potencial","potencia tu","no se trata solo de","en conclusión","en resumen","en definitiva","un mundo en constante cambio","en constante evolución","sin lugar a dudas","fascinante","a la vanguardia","revolucionario","transformador","aprovechar al máximo","navegar por","un viaje","espero que este correo te encuentre bien","no dudes en","¡claro!"],
+en:["in today's fast-paced world","it's important to note","it's worth noting","delve","dive into","plays a crucial role","pivotal","tapestry","navigate the complexities","unlock","unleash","game-changer","it's not just","in conclusion","ever-evolving","landscape","seamless","leverage","elevate","embark on a journey","a testament to","in the realm of","robust","foster","i hope this email finds you well","don't hesitate to","cutting-edge","harness","at the end of the day","buckle up"],
+pt:["no cenário atual","é crucial","é importante destacar","vale ressaltar","vale destacar","mergulhe","mergulhar","desempenha um papel fundamental","papel crucial","na era digital","desbloquear","potencializar","alavancar","não se trata apenas","em conclusão","em suma","em constante evolução","um mundo em constante mudança","sem dúvida","fascinante","revolucionário","transformador","aproveitar ao máximo","uma jornada","navegar pelos desafios","espero que este e-mail o encontre bem","não hesite em","de ponta","no fim das contas","jornada de"],
+fr:["dans le paysage actuel","il est crucial de","il est important de noter","il convient de souligner","plongeons","plongez dans","joue un rôle clé","rôle crucial","à l'ère du numérique","libérez votre potentiel","boostez","propulsez","il ne s'agit pas seulement","en conclusion","en somme","en constante évolution","un monde en perpétuel changement","sans aucun doute","fascinant","révolutionnaire","transformateur","tirer parti","un véritable voyage","naviguer dans","j'espère que ce message vous trouve","n'hésitez pas à","de pointe","au final","incontournable","véritable levier"]};
+const ALT={es:"Di el dato o la escena concreta en su lugar.",en:"Say the concrete fact or scene instead.",pt:"Diga o fato ou a cena concreta no lugar.",fr:"Dites plutôt le fait ou la scène concrète."};
+// valores típicos de texto genérico de IA (referencia de trabajo, calibrable)
+const AI_REF={avg:21,cv:.28,ttr:.42,q:2,emoji:4,para:3.2,first:.4};
+const LANG_NAMES={es:"Español",en:"English",pt:"Português",fr:"Français"};
+
+/* ===================== STATE ===================== */
+const LS="tono_studio_v1";
+let S={ui:"es",tab:"analyze",name:"",use:0,texts:["","",""],ban:[],audience:"",addr:0,analysis:null,orders:[]};
+try{Object.assign(S,JSON.parse(localStorage.getItem(LS)||"{}"))}catch(e){}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}};
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const t=k=>UI[S.ui][k];
+const toast=m=>{const el=$("#toast");el.textContent=m;el.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>el.classList.remove("on"),1600)};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm=s=>s.replace(/[’‘]/g,"'").replace(/[“”«»]/g,'"');
+function dl(name,content,type="text/plain"){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([content],{type:type+";charset=utf-8"}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+$("#wm").innerHTML=`<svg viewBox="-16 -26 272 100" style="display:block;width:100%"><g fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="round"><path d="M16 -2V59.5"/><path d="M-8 -4C0 -16 9 -15 16 -4S32 8 40 -4"/><circle cx="86" cy="36" r="23.5"/><path d="M132 59.5V34A20 20 0 0 1 172 34V59.5"/><circle cx="218" cy="36" r="23.5"/></g></svg>`;
+
+/* ===================== ANALYSIS ENGINE ===================== */
+const WORD_RE=/[\p{L}\p{M}][\p{L}\p{M}'-]*/gu;
+const EMOJI_RE=/\p{Extended_Pictographic}/gu;
+function sentences(txt){return norm(txt).replace(/\s*\n\s*\n\s*/g,"\n\n").split(/(?<=[.!?…])\s+|\n+/).map(s=>s.trim()).filter(s=>(s.match(WORD_RE)||[]).length>0)}
+function detectLang(txt){const w=(norm(txt).toLowerCase().match(WORD_RE)||[]);let best="es",bs=-1;for(const l in STOP){let c=0;w.forEach(x=>{if(STOP[l].has(x))c++});if(l==="pt")c+=w.filter(x=>/ão|ç|õ|nh/.test(x)).length*.5;if(l==="fr")c+=w.filter(x=>/^(les|des|est|une|pas|qui)$/.test(x)).length;if(c>bs){bs=c;best=l}}return best}
+function findTells(txt,langs){const low=norm(txt).toLowerCase();const out=[];(langs||Object.keys(TELLS)).forEach(l=>TELLS[l].forEach(p=>{const re=new RegExp("(^|[^\\p{L}])"+p.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?=[^\\p{L}]|$)","giu");const m=low.match(re);if(m)out.push({p,l,n:m.length})}));
+  // estructura "no es solo X, es Y" / "not just X, but Y"
+  const pat=[/no (es|se trata) solo[^.]{0,60}(sino|es)/gi,/(it'?s )?not just[^.]{0,60}(but|it'?s)/gi,/não (é|se trata) apenas[^.]{0,60}(mas|é)/gi,/ce n'est pas seulement[^.]{0,60}(mais|c'est)/gi];
+  pat.forEach((r,i)=>{const m=low.match(r);if(m)out.push({p:["no es solo X, es Y","not just X, but Y","não é apenas X, é Y","pas seulement X, mais Y"][i],l:["es","en","pt","fr"][i],n:m.length})});return out}
+function analyze(texts){
+  const valid=texts.map(x=>x.trim()).filter(x=>(x.match(WORD_RE)||[]).length>=40);
+  if(valid.length<3)return null;
+  const all=valid.join("\n\n");const lang=detectLang(all);
+  const sents=valid.flatMap(sentences);const lens=sents.map(s=>(s.match(WORD_RE)||[]).length);
+  const words=(norm(all).toLowerCase().match(WORD_RE)||[]);const nW=words.length;
+  const mean=lens.reduce((a,b)=>a+b,0)/lens.length;const sd=Math.sqrt(lens.reduce((a,b)=>a+(b-mean)**2,0)/lens.length);
+  const sorted=[...lens].sort((a,b)=>a-b);const pct=p=>sorted[Math.min(sorted.length-1,Math.floor(p*sorted.length))];
+  // MATTR (ventana 100) para riqueza léxica
+  let ttr=0,win=Math.min(100,nW),cnt=0;for(let i=0;i+win<=nW;i+=10){ttr+=new Set(words.slice(i,i+win)).size/win;cnt++}ttr=cnt?ttr/cnt:0;
+  const q=sents.filter(s=>/[?¿]/.test(s)).length/sents.length*100;
+  const ex=sents.filter(s=>/[!¡]/.test(s)).length/sents.length*100;
+  const emoji=(all.match(EMOJI_RE)||[]).length/nW*1000;
+  const dash=(all.match(/—|–/g)||[]).length/nW*1000;
+  const paras=valid.flatMap(v=>v.split(/\n\s*\n/)).map(p=>sentences(p).length).filter(Boolean);
+  const para=paras.reduce((a,b)=>a+b,0)/paras.length;
+  const fp=words.filter(w=>FIRST[lang].includes(w)).length/nW*100;
+  const sp=SECOND[lang];const tu=words.filter(w=>sp.tu.includes(w)).length,us=words.filter(w=>sp.usted.includes(w)).length;
+  const lists=valid.join("\n").split("\n").filter(l=>/^\s*([-•*·]|\d+[.)])\s/.test(l)).length;
+  const hashtags=(all.match(/#[\p{L}\d_]+/gu)||[]).length;
+  const freq={};words.forEach(w=>{if(w.length>3&&!STOP[lang].has(w)&&!/^\d+$/.test(w))freq[w]=(freq[w]||0)+1});
+  const sig=Object.entries(freq).filter(e=>e[1]>=2).sort((a,b)=>b[1]-a[1]).slice(0,18).map(e=>e[0]);
+  const bi={};for(let i=0;i<words.length-1;i++){const a=words[i],b=words[i+1];if(!STOP[lang].has(a)&&!STOP[lang].has(b)&&a.length>2&&b.length>2){const k=a+" "+b;bi[k]=(bi[k]||0)+1}}
+  const bigrams=Object.entries(bi).filter(e=>e[1]>=2).sort((a,b)=>b[1]-a[1]).slice(0,8).map(e=>e[0]);
+  const openers=valid.map(v=>sentences(v)[0]).filter(Boolean).map(s=>s.split(/\s+/).slice(0,6).join(" "));
+  const closers=valid.map(v=>{const s=sentences(v);return s[s.length-1]}).filter(Boolean);
+  const own=findTells(all,[lang]);
+  // muestras representativas: párrafos 25-110 palabras, sin muletillas, cercanos a la media de frase
+  const cands=valid.flatMap(v=>v.split(/\n\s*\n/)).map(p=>p.trim()).filter(p=>{const n=(p.match(WORD_RE)||[]).length;return n>=25&&n<=110&&!findTells(p,[lang]).length});
+  const samples=cands.map(p=>{const l=sentences(p).map(s=>(s.match(WORD_RE)||[]).length);const m=l.reduce((a,b)=>a+b,0)/l.length;return{p,d:Math.abs(m-mean)+(l.length<2?5:0)}}).sort((a,b)=>a.d-b.d).slice(0,4).map(x=>x.p);
+  const contractions=lang==="en"?(all.match(/\b\w+'(s|re|ve|ll|d|t|m)\b/gi)||[]).length/nW*100:null;
+  return{lang,nTexts:valid.length,nW,nS:sents.length,mean,sd,cv:sd/mean,p25:pct(.25),p90:pct(.9),ttr,q,ex,emoji,dash,para,fp,tu,us,lists,hashtags,sig,bigrams,openers,closers,own,samples,lens:lens.slice(0,80),contractions};
+}
+
+/* ===================== PACK GENERATOR ===================== */
+const PK={
+es:{title:"Voice Pack",for:"para",how:"Cómo usarlo",howList:"1. ChatGPT: Configuración > Personalización > Instrucciones personalizadas, o crea un Proyecto y pega la instrucción.\n2. Claude: crea un Proyecto y pega la instrucción en \"Instrucciones del proyecto\", o guárdala como Estilo.\n3. Gemini: crea un Gem y pega la instrucción.\n4. Para un texto puntual: pega la instrucción al inicio del chat y luego tu pedido.",master:"Instrucción maestra (copiar y pegar)",
+ intro:(n,a)=>`Escribe como ${n}${a?`, para ${a}`:""}. Tu trabajo no es escribir bien en general: es sonar exactamente a ${n}.`,
+ len:(m,p25,p90)=>`Ritmo: frases de ${m} palabras de media. Alterna frases cortas (${p25} palabras o menos) con alguna larga (${p90} o más). Nunca escribas tres frases seguidas del mismo largo.`,
+ para:p=>`Párrafos de ${p} frases como máximo. Deja aire entre ideas.`,
+ fpHi:"Escribe en primera persona. Cuenta lo que viste, hiciste o pensaste.",fpLo:"Usa poco la primera persona; el foco está en el tema, no en el autor.",
+ addr:{tu:"Tutea al lector.",usted:"Trata al lector de usted.",none:"No te dirijas directamente al lector."},
+ q:v=>v>12?"Usa preguntas para enganchar, como hace el autor (aprox. una cada 8 frases).":v>3?"Pregunta poco: una pregunta por texto como máximo.":"No hagas preguntas retóricas.",
+ emo:v=>v<0.5?"No uses emojis.":v<6?"Como máximo un emoji por texto, y nunca al inicio.":"Usa emojis con moderación, como señal, no como decoración.",
+ ex:v=>v<3?"Casi nunca uses signos de exclamación.":"Los signos de exclamación están permitidos pero escasos.",
+ dash:v=>v<0.5?"No uses rayas (—). Usa comas o puntos.":"Puedes usar la raya (—) para incisos, sin abusar.",
+ lists:v=>v>2?"Puedes usar listas cuando haya pasos reales.":"Escribe en prosa. Evita listas con viñetas.",
+ vocab:"Palabras que el autor usa a menudo (úsalas cuando encajen, sin forzarlas):",open:"Así suele empezar sus textos:",close:"Así suele cerrar:",
+ ban:"Nunca uses estas frases ni variantes:",samples:"Textos de referencia del autor (imita el ritmo y el tono, no copies el contenido):",
+ check:"Antes de entregar, relee: si aparece una frase prohibida, una lista de tres adjetivos o una conclusión que resume lo ya dicho, reescríbela.",
+ sheet:"Ficha de ritmo",pairs:"Pares de ejemplo (plan Pro)",pairsNote:"Completar con el cliente: a la izquierda, lo que escribe la IA sin pack; a la derecha, cómo lo diría el cliente.",gen:"Generado con Tono Studio"},
+en:{title:"Voice Pack",for:"for",how:"How to use it",howList:"1. ChatGPT: Settings > Personalization > Custom instructions, or create a Project and paste the instruction.\n2. Claude: create a Project and paste it into Project instructions, or save it as a Style.\n3. Gemini: create a Gem and paste the instruction.\n4. One-off: paste the instruction at the top of a chat, then your request.",master:"Master instruction (copy & paste)",
+ intro:(n,a)=>`Write like ${n}${a?`, for ${a}`:""}. Your job isn’t to write well in general; it’s to sound exactly like ${n}.`,
+ len:(m,p25,p90)=>`Rhythm: sentences average ${m} words. Mix short ones (${p25} words or fewer) with the occasional long one (${p90}+). Never write three sentences of the same length in a row.`,
+ para:p=>`Paragraphs of ${p} sentences at most. Leave air between ideas.`,
+ fpHi:"Write in the first person. Tell what you saw, did or thought.",fpLo:"Go light on the first person; the topic is the focus, not the author.",
+ addr:{tu:"Talk to the reader as “you”.",usted:"Keep a formal register with the reader.",none:"Don’t address the reader directly."},
+ q:v=>v>12?"Use questions to pull the reader in, as the author does (about one every 8 sentences).":v>3?"Ask sparingly: one question per piece at most.":"No rhetorical questions.",
+ emo:v=>v<0.5?"No emojis.":v<6?"One emoji per piece at most, never at the start.":"Emojis in moderation, as signals, not decoration.",
+ ex:v=>v<3?"Almost never use exclamation marks.":"Exclamation marks allowed but rare.",
+ dash:v=>v<0.5?"No em dashes. Use commas or full stops.":"Em dashes are fine for asides, don’t overuse them.",
+ lists:v=>v>2?"Lists are fine when there are real steps.":"Write in prose. Avoid bullet lists.",
+ vocab:"Words the author uses often (use them when they fit, don’t force them):",open:"How the author usually opens:",close:"How the author usually closes:",
+ ban:"Never use these phrases or variants:",samples:"Reference passages by the author (copy the rhythm and tone, not the content):",
+ check:"Before you answer, reread: if a banned phrase, a list of three adjectives or a recap conclusion appears, rewrite it.",
+ sheet:"Rhythm sheet",pairs:"Example pairs (Pro plan)",pairsNote:"Fill in with the client: left, what AI writes without the pack; right, how the client would say it.",gen:"Made with Tono Studio"},
+pt:{title:"Voice Pack",for:"para",how:"Como usar",howList:"1. ChatGPT: Configurações > Personalização > Instruções personalizadas, ou crie um Projeto e cole a instrução.\n2. Claude: crie um Projeto e cole em \"Instruções do projeto\", ou salve como Estilo.\n3. Gemini: crie um Gem e cole a instrução.\n4. Para um texto avulso: cole a instrução no início do chat e depois o pedido.",master:"Instrução mestra (copiar e colar)",
+ intro:(n,a)=>`Escreva como ${n}${a?`, para ${a}`:""}. Seu trabalho não é escrever bem em geral: é soar exatamente como ${n}.`,
+ len:(m,p25,p90)=>`Ritmo: frases com ${m} palavras em média. Alterne frases curtas (${p25} palavras ou menos) com alguma longa (${p90} ou mais). Nunca escreva três frases seguidas do mesmo tamanho.`,
+ para:p=>`Parágrafos de no máximo ${p} frases. Deixe respiro entre as ideias.`,
+ fpHi:"Escreva em primeira pessoa. Conte o que viu, fez ou pensou.",fpLo:"Use pouco a primeira pessoa; o foco é o tema, não o autor.",
+ addr:{tu:"Fale com o leitor usando “você”.",usted:"Trate o leitor de forma formal.",none:"Não se dirija diretamente ao leitor."},
+ q:v=>v>12?"Use perguntas para fisgar, como o autor faz (cerca de uma a cada 8 frases).":v>3?"Pergunte pouco: no máximo uma pergunta por texto.":"Sem perguntas retóricas.",
+ emo:v=>v<0.5?"Não use emojis.":v<6?"No máximo um emoji por texto, nunca no início.":"Emojis com moderação, como sinal, não decoração.",
+ ex:v=>v<3?"Quase nunca use ponto de exclamação.":"Pontos de exclamação permitidos, mas raros.",
+ dash:v=>v<0.5?"Não use travessão (—). Use vírgula ou ponto.":"Pode usar travessão para intercalações, sem exagero.",
+ lists:v=>v>2?"Pode usar listas quando houver passos reais.":"Escreva em prosa. Evite listas com marcadores.",
+ vocab:"Palavras que o autor usa com frequência (use quando couber, sem forçar):",open:"Como o autor costuma começar:",close:"Como costuma fechar:",
+ ban:"Nunca use estas frases nem variações:",samples:"Textos de referência do autor (imite ritmo e tom, não o conteúdo):",
+ check:"Antes de entregar, releia: se aparecer frase proibida, lista de três adjetivos ou conclusão que repete o que já foi dito, reescreva.",
+ sheet:"Ficha de ritmo",pairs:"Pares de exemplo (plano Pro)",pairsNote:"Preencher com o cliente: à esquerda, o que a IA escreve sem o pack; à direita, como o cliente diria.",gen:"Gerado com Tono Studio"},
+fr:{title:"Voice Pack",for:"pour",how:"Mode d’emploi",howList:"1. ChatGPT : Paramètres > Personnalisation > Instructions personnalisées, ou créez un Projet et collez l’instruction.\n2. Claude : créez un Projet et collez-la dans les instructions du projet, ou enregistrez-la comme Style.\n3. Gemini : créez un Gem et collez l’instruction.\n4. Pour un texte ponctuel : collez l’instruction en début de conversation, puis votre demande.",master:"Instruction maîtresse (à copier-coller)",
+ intro:(n,a)=>`Écris comme ${n}${a?`, pour ${a}`:""}. Ton travail n’est pas de bien écrire en général : c’est de sonner exactement comme ${n}.`,
+ len:(m,p25,p90)=>`Rythme : phrases de ${m} mots en moyenne. Alterne des phrases courtes (${p25} mots ou moins) et quelques longues (${p90} ou plus). Jamais trois phrases de même longueur d’affilée.`,
+ para:p=>`Paragraphes de ${p} phrases maximum. Laisse respirer les idées.`,
+ fpHi:"Écris à la première personne. Raconte ce que tu as vu, fait ou pensé.",fpLo:"Peu de première personne : le sujet compte plus que l’auteur.",
+ addr:{tu:"Tutoie le lecteur.",usted:"Vouvoie le lecteur.",none:"Ne t’adresse pas directement au lecteur."},
+ q:v=>v>12?"Utilise des questions pour accrocher, comme l’auteur (environ une toutes les 8 phrases).":v>3?"Peu de questions : une par texte au maximum.":"Pas de questions rhétoriques.",
+ emo:v=>v<0.5?"Pas d’emojis.":v<6?"Un emoji par texte au maximum, jamais au début.":"Des emojis avec mesure, comme signal, pas comme décor.",
+ ex:v=>v<3?"Presque jamais de point d’exclamation.":"Points d’exclamation permis, mais rares.",
+ dash:v=>v<0.5?"Pas de tiret long (—). Virgules ou points.":"Le tiret long est permis pour les incises, sans excès.",
+ lists:v=>v>2?"Les listes sont permises quand il y a de vraies étapes.":"Écris en prose. Évite les listes à puces.",
+ vocab:"Mots que l’auteur emploie souvent (à utiliser quand ils s’y prêtent, sans forcer) :",open:"Ses attaques habituelles :",close:"Ses chutes habituelles :",
+ ban:"N’utilise jamais ces formules ni leurs variantes :",samples:"Extraits de référence de l’auteur (imite le rythme et le ton, pas le contenu) :",
+ check:"Avant de rendre, relis : si une formule interdite, une liste de trois adjectifs ou une conclusion qui résume apparaît, réécris-la.",
+ sheet:"Fiche rythme",pairs:"Paires d’exemples (offre Pro)",pairsNote:"À remplir avec le client : à gauche, ce que l’IA écrit sans pack ; à droite, comment le client le dirait.",gen:"Créé avec Tono Studio"}};
+function buildInstruction(){
+  const A=S.analysis;if(!A)return"";const P=PK[A.lang];const name=S.name.trim()||"[nombre]";
+  const addrKey=S.addr===1?"tu":S.addr===2?"usted":S.addr===3?"none":(A.us>A.tu?"usted":A.tu>2?"tu":"none");
+  const banned=[...new Set([...TELLS[A.lang],...S.ban])];
+  const L=[P.intro(name,S.audience.trim()),"",P.len(Math.round(A.mean),A.p25,A.p90),P.para(Math.max(1,Math.round(A.para))),A.fp>1.2?P.fpHi:P.fpLo,P.addr[addrKey],P.q(A.q),P.emo(A.emoji),P.ex(A.ex),P.dash(A.dash),P.lists(A.lists)];
+  if(A.lang==="en"&&A.contractions!==null)L.push(A.contractions>1?"Use contractions (I’m, don’t, it’s).":"Avoid contractions.");
+  if(A.hashtags>2)L.push("#hashtags: "+Math.min(5,Math.round(A.hashtags/A.nTexts))+" max.");
+  L.push("",P.vocab+" "+[...A.sig.slice(0,12),...A.bigrams.slice(0,4)].join(", "));
+  if(A.openers.length)L.push("",P.open,...A.openers.slice(0,4).map(o=>"- "+o+"…"));
+  if(A.closers.length)L.push("",P.close,...A.closers.slice(0,3).map(o=>"- "+o));
+  L.push("",P.ban,banned.map(b=>"«"+b+"»").join(", "));
+  if(A.samples.length)L.push("",P.samples,...A.samples.map((s,i)=>`\n[${i+1}]\n${s}`));
+  L.push("",P.check);
+  return L.join("\n");
+}
+function buildPack(){
+  const A=S.analysis;if(!A)return"";const P=PK[A.lang];const name=S.name.trim()||"[nombre]";const d=new Date().toISOString().slice(0,10);
+  const sheet=[["avg words / sentence",A.mean.toFixed(1)],["rhythm variation (CV)",A.cv.toFixed(2)],["short ≤ / long ≥",A.p25+" / "+A.p90],["vocabulary (MATTR)",A.ttr.toFixed(2)],["questions /100 sentences",A.q.toFixed(1)],["emojis /1000 words",A.emoji.toFixed(1)],["sentences / paragraph",A.para.toFixed(1)],["first person %",A.fp.toFixed(1)],["texts / words",A.nTexts+" / "+A.nW],["language",LANG_NAMES[A.lang]]];
+  return `# ${P.title} ${P.for} ${name}\n${d} · ${P.gen}\n\n## ${P.how}\n${P.howList}\n\n## ${P.master}\n\n\`\`\`\n${buildInstruction()}\n\`\`\`\n\n## ${P.sheet}\n\n| | |\n|---|---|\n${sheet.map(r=>`| ${r[0]} | ${r[1]} |`).join("\n")}\n\n## ${P.pairs}\n${P.pairsNote}\n\n| IA | ${name} |\n|---|---|\n${Array.from({length:10},(_,i)=>`| ${i+1}. | |`).join("\n")}\n`;
+}
+
+/* ===================== RENDER ===================== */
+function renderTexts(){
+  $("#texts").innerHTML=S.texts.map((x,i)=>`<div class="textbox"><textarea data-ti="${i}" placeholder="${esc(t("a_ph"))}">${esc(x)}</textarea>${S.texts.length>1?`<button class="rm" data-rm="${i}" aria-label="remove">✕</button>`:""}<span class="meta">${(x.match(WORD_RE)||[]).length} ${t("a_words")}</span></div>`).join("");
+  updateCount();
+}
+function updateCount(){const ok=S.texts.filter(x=>(x.match(WORD_RE)||[]).length>=40).length;$("#countInfo").textContent=`${ok} / ${S.texts.length}`;$("#runAnalysis").disabled=ok<3}
+function renderResults(){
+  const A=S.analysis;$("#results").classList.toggle("hidden",!A);if(!A)return;
+  const K=[[A.mean.toFixed(1),t("k_avg"),`IA ≈ ${AI_REF.avg}`],[A.cv.toFixed(2),t("k_var"),`IA ≈ ${AI_REF.cv}`],[A.ttr.toFixed(2),t("k_lex"),`IA ≈ ${AI_REF.ttr}`],[LANG_NAMES[A.lang],t("k_lang"),`${A.nTexts} · ${A.nW} ${t("a_words")}`],[A.q.toFixed(1),t("k_q"),""],[A.emoji.toFixed(1),t("k_emoji"),""],[A.para.toFixed(1),t("k_para"),""],[A.fp.toFixed(1)+"%",t("k_first"),""]];
+  $("#kpis").innerHTML=K.map(k=>`<div class="kpi"><b>${k[0]}</b><span>${k[1]}</span>${k[2]?`<em>${k[2]}</em>`:""}</div>`).join("");
+  const B=[[t("k_avg"),A.mean,AI_REF.avg,35],[t("k_var"),A.cv,AI_REF.cv,1],[t("k_lex"),A.ttr,AI_REF.ttr,1],[t("k_q"),A.q,AI_REF.q,30],[t("k_emoji"),A.emoji,AI_REF.emoji,20],[t("k_para"),A.para,AI_REF.para,6]];
+  $("#bars").innerHTML=`<div class="bar small"><span></span><span>${t("vs_you")}</span><span>${t("vs_ai")}</span></div>`+B.map(b=>`<div class="bar"><span>${b[0]}</span><div class="track"><div class="fill" style="width:${Math.min(100,b[1]/b[3]*100)}%;background:var(--cobalto)"></div></div><div class="track"><div class="fill" style="width:${Math.min(100,b[2]/b[3]*100)}%;background:#9a9aa8"></div></div></div>`).join("");
+  const L=A.lens,max=Math.max(...L,30),w=100/L.length;
+  $("#rhythm").setAttribute("viewBox","0 0 100 100");
+  $("#rhythm").innerHTML=`<line x1="0" x2="100" y1="${100-AI_REF.avg/max*100}" y2="${100-AI_REF.avg/max*100}" stroke="#9a9aa8" stroke-dasharray="1 1" stroke-width=".4"/>`+L.map((l,i)=>`<rect x="${i*w+w*.15}" y="${100-l/max*100}" width="${w*.7}" height="${l/max*100}" fill="#2337E6"/>`).join("");
+  $("#sigWords").innerHTML=[...A.sig,...A.bigrams].map(x=>`<span class="tag">${esc(x)}</span>`).join("")||"—";
+  $("#openers").innerHTML=A.openers.map(x=>`<span class="tag">${esc(x)}…</span>`).join("");
+  $("#ownTells").innerHTML=A.own.length?A.own.map(x=>`<span class="tag bad">${esc(x.p)} ×${x.n}</span>`).join(""):`<span class="small">${t("r_none")}</span>`;
+}
+function renderPack(){
+  const has=!!S.analysis;$("#packEmpty").classList.toggle("hidden",has);$("#packBody").classList.toggle("hidden",!has);if(!has)return;
+  $("#customBan").innerHTML=S.ban.map((b,i)=>`<span class="tag bad">${esc(b)}<button data-unban="${i}" aria-label="remove">✕</button></span>`).join("");
+  $("#pAudience").value=S.audience;$("#pAddress").innerHTML=t("addr").map((a,i)=>`<option value="${i}"${i==S.addr?" selected":""}>${a}</option>`).join("");
+  $("#packOut").textContent=buildPack();
+}
+function renderDetect(){
+  const v=$("#detIn").value;if(!v.trim()){$("#detScore").textContent="0";$("#detVerdict").textContent="";$("#detHits").innerHTML="";$("#detOut").textContent="";return}
+  const hits=findTells(v);const nW=(v.match(WORD_RE)||[]).length||1;const ss=sentences(v).map(s=>(s.match(WORD_RE)||[]).length);
+  const m=ss.reduce((a,b)=>a+b,0)/(ss.length||1);const cv=ss.length>2?Math.sqrt(ss.reduce((a,b)=>a+(b-m)**2,0)/ss.length)/m:.5;
+  let score=hits.reduce((a,h)=>a+h.n*14,0)+((v.match(EMOJI_RE)||[]).length/nW*1000>8?10:0)+(cv<.3&&ss.length>4?15:0)+((v.match(/—/g)||[]).length/nW*1000>6?8:0);
+  score=Math.min(100,Math.round(score));$("#detScore").textContent=score;
+  $("#detVerdict").textContent=score<20?t("v0"):score<50?t("v1"):t("v2");
+  $("#detHits").innerHTML=hits.map(h=>`<span class="tag bad">${esc(h.p)} ×${h.n}</span>`).join("");
+  let html=esc(norm(v));const ps=[...new Set(hits.map(h=>h.p))].filter(p=>!p.includes(" X")).sort((a,b)=>b.length-a.length);
+  ps.forEach(p=>{html=html.replace(new RegExp(esc(p).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi"),x=>`<mark class="t" title="${esc(ALT[S.ui])}">${x}</mark>`)});
+  $("#detOut").innerHTML=html;
+}
+function renderOrders(){
+  const now=Date.now();const st=t("st");
+  $("#oRows").innerHTML=S.orders.map((o,i)=>{const due=new Date(o.created+48*3600e3);const late=o.status<3&&now>due;return`<tr><td>${esc(o.name)}<div class="small">${esc(o.notes||"")}</div></td><td>${esc(o.email)}</td><td>$${o.plan}</td><td>${o.lang}</td><td><select data-ost="${i}">${st.map((s,j)=>`<option value="${j}"${j==o.status?" selected":""}>${s}</option>`).join("")}</select></td><td class="${late?"late":""}">${due.toLocaleString(S.ui,{weekday:"short",hour:"2-digit",minute:"2-digit"})}</td><td><button class="btn sm" data-odel="${i}">${t("del")}</button></td></tr>`}).join("");
+  const rev=S.orders.reduce((a,o)=>a+ +o.plan,0);const late=S.orders.filter(o=>o.status<3&&now>o.created+48*3600e3).length;
+  const net=S.orders.filter(o=>+o.plan>0).reduce((a,o)=>a+(+o.plan*0.95-0.5)-(+o.plan*0.015),0);
+  $("#oKpis").innerHTML=[[`$${rev}`,t("ok_rev")+` (≈ $${net.toFixed(0)} net Polar)`],[S.orders.length,t("ok_n")],[late,t("ok_late")],[Math.round(rev/10)+"%",t("ok_goal")]].map(k=>`<div class="kpi"><b>${k[0]}</b><span>${k[1]}</span></div>`).join("");
+}
+function render(){
+  document.documentElement.lang=S.ui;
+  $$("[data-i]").forEach(el=>{const v=t(el.dataset.i);if(typeof v==="string")el.textContent=v});
+  $$(".langs button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===S.ui));
+  $$(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===S.tab));
+  $$("[data-view]").forEach(v=>v.classList.toggle("hidden",v.dataset.view!==S.tab));
+  $("#pName").value=S.name;$("#pUse").innerHTML=t("uses").map((u,i)=>`<option value="${i}"${i==S.use?" selected":""}>${u}</option>`).join("");
+  $("#detIn").placeholder=t("a_ph");$("#wIn").placeholder=t("a_ph");$("#oNotes").placeholder=t("o_notes");$("#banIn").placeholder="…";
+  renderTexts();renderResults();renderPack();renderDetect();renderOrders();
+}
+
+/* ===================== EVENTS ===================== */
+document.addEventListener("click",e=>{
+  const el=e.target.closest("button,[data-goto]");if(!el)return;
+  if(el.dataset.lang){S.ui=el.dataset.lang;save();history.replaceState(null,"","#"+S.ui);render();return}
+  if(el.dataset.tab||el.dataset.goto){S.tab=el.dataset.tab||el.dataset.goto;save();render();scrollTo(0,0);return}
+  if(el.dataset.rm!==undefined){S.texts.splice(+el.dataset.rm,1);save();renderTexts();return}
+  if(el.dataset.unban!==undefined){S.ban.splice(+el.dataset.unban,1);save();renderPack();return}
+  if(el.dataset.odel!==undefined){if(confirm(t("del")+"?")){S.orders.splice(+el.dataset.odel,1);save();renderOrders()}return}
+});
+$("#texts").addEventListener("input",e=>{const i=e.target.dataset.ti;if(i===undefined)return;S.texts[i]=e.target.value;save();e.target.parentElement.querySelector(".meta").textContent=(e.target.value.match(WORD_RE)||[]).length+" "+t("a_words");updateCount()});
+$("#addText").onclick=()=>{S.texts.push("");save();renderTexts();$$("#texts textarea").pop().focus()};
+$("#pName").oninput=e=>{S.name=e.target.value;save()};
+$("#pUse").onchange=e=>{S.use=+e.target.value;save()};
+$("#runAnalysis").onclick=()=>{const A=analyze(S.texts);if(!A){toast(t("a_need"));return}S.analysis=A;save();renderResults();renderPack();$("#results").scrollIntoView({behavior:"smooth"})};
+const drop=$("#drop");drop.onclick=()=>$("#fileIn").click();
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("on")}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("on")}));
+drop.addEventListener("drop",e=>readFiles(e.dataTransfer.files));$("#fileIn").onchange=e=>readFiles(e.target.files);
+async function readFiles(fs){for(const f of fs){let x=await f.text();if(/\.html?$/.test(f.name))x=new DOMParser().parseFromString(x,"text/html").body.innerText;x.split(/\n-{3,}\n|\n={3,}\n/).forEach(part=>{if(part.trim()){const empty=S.texts.findIndex(v=>!v.trim());if(empty>-1)S.texts[empty]=part.trim();else S.texts.push(part.trim())}})}save();renderTexts()}
+$("#loadDemo").onclick=()=>{S.name="Michell";S.texts=DEMO[S.ui]||DEMO.es;save();render()};
+$("#banAdd").onclick=()=>{const v=$("#banIn").value.trim().toLowerCase();if(v){S.ban.push(v);$("#banIn").value="";save();renderPack()}};
+$("#banIn").onkeydown=e=>{if(e.key==="Enter")$("#banAdd").click()};
+$("#pAudience").oninput=e=>{S.audience=e.target.value;save();$("#packOut").textContent=buildPack()};
+$("#pAddress").onchange=e=>{S.addr=+e.target.value;save();$("#packOut").textContent=buildPack()};
+$("#copyInstr").onclick=()=>navigator.clipboard.writeText(buildInstruction()).then(()=>toast(t("copied")));
+$("#dlMd").onclick=()=>dl(`voice-pack-${(S.name||"tono").toLowerCase().replace(/\W+/g,"-")}.md`,buildPack(),"text/markdown");
+$("#printPack").onclick=()=>window.print();
+$("#dlTells").onclick=()=>dl("tono-muletillas-ia-4-idiomas.md","# AI tells / Muletillas / Vícios / Tics\n\n"+Object.entries(TELLS).map(([l,a])=>`## ${LANG_NAMES[l]}\n\n${a.map(x=>"- "+x+"  → "+ALT[l]).join("\n")}`).join("\n\n"),"text/markdown");
+$("#detIn").addEventListener("input",renderDetect);
+function fullPrompt(){return `${buildInstruction()}\n\n---\n${({es:"Reescribe el siguiente texto con esta voz. Devuelve solo el texto final.",en:"Rewrite the following text in this voice. Return only the final text.",pt:"Reescreva o texto a seguir com esta voz. Devolva apenas o texto final.",fr:"Réécris le texte suivant avec cette voix. Renvoie uniquement le texte final."})[S.analysis.lang]}\n\n${$("#wIn").value}`}
+$("#copyPrompt").onclick=()=>{if(!S.analysis){toast(t("w_need"));return}navigator.clipboard.writeText(fullPrompt()).then(()=>toast(t("copied")))};
+$("#runApi").onclick=async()=>{
+  if(!S.analysis){toast(t("w_need"));return}const key=$("#apiKey").value.trim();if(!key)return;
+  $("#apiStatus").textContent="…";$("#apiOut").textContent="";
+  try{const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:$("#apiModel").value.trim(),max_tokens:1200,system:buildInstruction(),messages:[{role:"user",content:$("#wIn").value}]})});
+    const j=await r.json();if(!r.ok)throw new Error(j.error?.message||r.status);$("#apiOut").textContent=j.content.map(c=>c.text||"").join("\n");$("#apiStatus").textContent="";
+  }catch(err){$("#apiStatus").textContent="Error: "+err.message}
+};
+$("#oAdd").onclick=()=>{const n=$("#oName").value.trim(),em=$("#oEmail").value.trim();if(!n||!em)return;S.orders.unshift({name:n,email:em,plan:$("#oPlan").value,lang:$("#oLang").value,notes:$("#oNotes").value.trim(),status:0,created:Date.now()});["#oName","#oEmail","#oNotes"].forEach(s=>$(s).value="");save();renderOrders();toast(t("saved"))};
+$("#oRows").addEventListener("change",e=>{const i=e.target.dataset.ost;if(i!==undefined){S.orders[i].status=+e.target.value;save();renderOrders()}});
+$("#oCsv").onclick=()=>dl("tono-pedidos.csv","name,email,plan,lang,status,created,notes\n"+S.orders.map(o=>[o.name,o.email,o.plan,o.lang,t("st")[o.status],new Date(o.created).toISOString(),o.notes].map(x=>`"${String(x||"").replace(/"/g,'""')}"`).join(",")).join("\n"),"text/csv");
+$("#oJson").onclick=()=>dl("tono-studio-backup.json",JSON.stringify(S,null,2),"application/json");
+$("#oImport").onchange=async e=>{try{const d=JSON.parse(await e.target.files[0].text());Object.assign(S,d);save();render();toast(t("saved"))}catch(err){toast("JSON ✕")}};
+$("#themeBtn").onclick=()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark"};
+
+/* ===================== DEMO TEXTS ===================== */
+const DEMO={
+es:["Mi abuela escribía la lista del mercado en el reverso de los recibos de luz. Nunca le sobraba papel, pero tampoco le faltaba nada en la cocina.\n\nPienso en ella cada vez que alguien me pide un plan de contenidos de cuarenta páginas. No necesitas más páginas. Necesitas saber qué no vas a comprar.","Ayer borré un post entero antes de publicarlo. Estaba bien escrito, tenía datos, tenía un buen cierre. Pero no era mío.\n\nLo había armado con IA en diez minutos y sonaba a cualquiera. Lo reescribí a mano en una hora. Tuvo la mitad de alcance y el triple de mensajes privados. Me quedo con los mensajes.","Tres cosas que aprendí vendiendo mi primer servicio por menos de cien dólares.\n\nLa primera: el precio bajo no compra confianza, la compra el ejemplo. La segunda: si tienes que explicar demasiado, el producto todavía no está listo. La tercera la sigo aprendiendo, y tiene que ver con decir que no.","Hay una pregunta que hago en cada reunión con un cliente nuevo: ¿qué frase te daría vergüenza ver publicada con tu nombre?\n\nLa respuesta dice más de su voz que cualquier manual de marca. Una clienta me dijo «sinergia». Otro, cualquier cosa con tres signos de exclamación. Esa lista negra es el principio de todo."],
+en:["My grandmother wrote her grocery list on the back of electricity bills. She never had spare paper, and she never ran out of anything in the kitchen.\n\nI think of her every time someone asks me for a forty-page content plan. You don’t need more pages. You need to know what you won’t buy.","Yesterday I deleted a whole post before hitting publish. It was well written, it had data, it had a good ending. It just wasn’t mine.\n\nI’d built it with AI in ten minutes and it sounded like anyone. I rewrote it by hand in an hour. Half the reach, three times the DMs. I’ll take the DMs.","Three things I learned selling my first service for under a hundred dollars.\n\nOne: a low price doesn’t buy trust, a good example does. Two: if you have to explain too much, the product isn’t ready. The third I’m still learning, and it’s about saying no.","There’s a question I ask every new client: which sentence would embarrass you if it went out under your name?\n\nThe answer says more about their voice than any brand book. One client said “synergy”. Another said anything with three exclamation marks. That blacklist is where everything starts."],
+pt:["Minha avó escrevia a lista do mercado no verso da conta de luz. Nunca sobrava papel, mas também nunca faltava nada na cozinha.\n\nLembro dela toda vez que alguém me pede um plano de conteúdo de quarenta páginas. Você não precisa de mais páginas. Precisa saber o que não vai comprar.","Ontem apaguei um post inteiro antes de publicar. Estava bem escrito, tinha dados, tinha um bom fechamento. Só não era meu.\n\nTinha montado com IA em dez minutos e soava como qualquer um. Reescrevi à mão em uma hora. Metade do alcance, o triplo de mensagens no direct. Fico com as mensagens.","Três coisas que aprendi vendendo meu primeiro serviço por menos de cem dólares.\n\nA primeira: preço baixo não compra confiança, um bom exemplo compra. A segunda: se você precisa explicar demais, o produto ainda não está pronto. A terceira eu ainda estou aprendendo, e tem a ver com dizer não.","Tem uma pergunta que faço em toda primeira reunião com cliente: que frase te daria vergonha de ver publicada com o seu nome?\n\nA resposta diz mais sobre a voz da pessoa do que qualquer manual de marca. Uma cliente disse “sinergia”. Outro, qualquer coisa com três pontos de exclamação. Essa lista proibida é o começo de tudo."],
+fr:["Ma grand-mère écrivait sa liste de courses au dos des factures d’électricité. Elle n’avait jamais de papier en trop, et il ne manquait jamais rien dans sa cuisine.\n\nJe pense à elle chaque fois qu’on me demande un plan de contenu de quarante pages. Il ne vous faut pas plus de pages. Il vous faut savoir ce que vous n’achèterez pas.","Hier, j’ai supprimé un post entier juste avant de le publier. Il était bien écrit, il avait des chiffres, une bonne chute. Mais ce n’était pas moi.\n\nJe l’avais monté avec l’IA en dix minutes et il sonnait comme n’importe qui. Je l’ai réécrit à la main en une heure. Moitié moins de portée, trois fois plus de messages privés. Je garde les messages.","Trois choses apprises en vendant mon premier service à moins de cent dollars.\n\nUn : un prix bas n’achète pas la confiance, un bon exemple si. Deux : s’il faut trop expliquer, le produit n’est pas prêt. La troisième, je l’apprends encore, et elle parle de dire non.","Je pose une question à chaque nouveau client : quelle phrase vous ferait honte si elle sortait sous votre nom ?\n\nLa réponse en dit plus sur sa voix que n’importe quelle charte. Une cliente m’a dit « synergie ». Un autre, tout ce qui finit par trois points d’exclamation. Cette liste noire, c’est le début de tout."]};
+
+/* ===================== INIT ===================== */
+(function(){const h=location.hash.slice(1);if(UI[h])S.ui=h;else{let has=null;try{has=localStorage.getItem(LS)}catch(e){}if(!has){const n=(navigator.language||"es").slice(0,2);if(UI[n])S.ui=n}}render()})();
+</script>
+<script>
+/* ===================== CUENTAS, PAGOS Y DESBLOQUEO ===================== */
+const PRICE={es:{pack:"$49",pro:"$199",agency:"$499"},en:{pack:"$49",pro:"$199",agency:"$499"},pt:{pack:"US$49",pro:"US$199",agency:"US$499"},fr:{pack:"49 $",pro:"199 $",agency:"499 $"}};
+const EXTRA={
+es:{p_lede:"Tu voz convertida en instrucciones para tu IA. Añade frases que nunca dirías y ajusta a quién le escribes.",tab_saved:"Mis Voice Packs",privacy:"El análisis corre en tu navegador. En tu cuenta solo se guarda lo que tú guardas.",gate_h:"Tu voz, lista para cualquier IA.",gate_p:"Crea tu cuenta gratis para analizar tu voz. Pagas solo si quieres el Voice Pack completo.",gate_pts:["Análisis de tu ritmo, vocabulario y muletillas: gratis.","Detector de frases de IA en 4 idiomas: gratis.","Voice Pack completo para ChatGPT, Claude o Gemini: desde $49, pago único."],gate_signup:"Crear cuenta gratis",gate_login:"Ya tengo cuenta",gate_legal:'Al continuar aceptas los <a href="legal.html#terms">Términos</a>, la <a href="legal.html#privacy">Privacidad</a> y la <a href="legal.html#ai">Política de IA</a> de Limly LLC.',v_txt:"Activa tu cuenta: te enviamos un enlace a {email}. Lo necesitas para comprar y guardar.",v_resend:"Reenviar",v_check:"Ya lo activé",v_ok:"Cuenta activada.",paid_bar:"¡Gracias por tu compra! Tu clave de licencia aparece en la página de confirmación de Polar y en tu portal de cliente (Polar te envía el acceso por correo). Pégala abajo para desbloquear tu Voice Pack.",lock_h:"Desbloquea tu Voice Pack completo",lock_p:"Ves una vista previa. Elige un plan: pagas una vez con tarjeta (Polar, impuestos incluidos) y recibes una clave para activar el pack aquí.",plans:{pack:["Voice Pack","1 voz. Instrucción completa, frases prohibidas, ficha de ritmo, descarga."],pro:["Voice Pack Pro","1 voz + revisión de un editor humano, 30 pares antes/después, 2 ajustes. Entrega 48 h."],agency:["Agencias","5 voces distintas, revisión Pro en todas, plantilla para clientes."]},buy:"Comprar",have_key:"¿Ya compraste? Pega tu clave de licencia",activate:"Activar",validating:"Validando con Polar…",portal:"¿No encuentras tu clave? Ábrela en tu portal de compras",lic_ok:"Desbloqueado: {plan}.",unlocked:"Desbloqueado · {plan}",voices:"Voces usadas: {used} de {max}",lic_err:{invalid:"Esa clave no es válida. Cópiala completa desde el correo de Polar.",network:"No pudimos conectar con Polar. Revisa tu internet e inténtalo de nuevo.",not_configured:"Los pagos aún no están conectados (config.js).",expired:"Esta clave venció.",status_revoked:"Esta clave fue revocada (reembolso o disputa). Escríbenos si es un error.",status_disabled:"Esta clave está desactivada. Escríbenos.",unknown_product:"La clave es válida pero no corresponde a un plan de Tono.",empty:"Pega tu clave primero."},need_verify:"Activa tu correo antes de comprar o desbloquear.",need_login:"Ingresa a tu cuenta para continuar.",save_cloud:"Guardar en mi cuenta",saved_ok:"Guardado en tu cuenta.",pro_req:"Pedir revisión del editor",pro_req_ok:"Recibido. Te enviamos la versión revisada en 48 h al correo de tu cuenta.",voices_full:"Tu plan permite {n} voz(es) y ya usaste: {names}. Para otra voz, compra otro Voice Pack o el plan Agencias.",locked:"Desbloquea el Voice Pack para copiarlo, descargarlo o usarlo.",saved_h:"Mis Voice Packs",saved_p:"Los packs que guardaste en tu cuenta. Ábrelos en cualquier dispositivo.",saved_empty:"Aún no guardaste ningún Voice Pack.",open:"Abrir",del:"Borrar",del_q:"¿Borrar este Voice Pack de tu cuenta?",w_locked:"Para escribir con tu voz necesitas el Voice Pack desbloqueado."},
+en:{p_lede:"Your voice turned into instructions for your AI. Add phrases you'd never say and set who you write for.",tab_saved:"My Voice Packs",privacy:"Analysis runs in your browser. Your account only stores what you choose to save.",gate_h:"Your voice, ready for any AI.",gate_p:"Create a free account to analyze your voice. Pay only if you want the full Voice Pack.",gate_pts:["Analysis of your rhythm, vocabulary and AI tells: free.","AI-phrase detector in 4 languages: free.","Full Voice Pack for ChatGPT, Claude or Gemini: from $49, one-time."],gate_signup:"Create free account",gate_login:"I have an account",gate_legal:'By continuing you accept Limly LLC’s <a href="legal.html#terms">Terms</a>, <a href="legal.html#privacy">Privacy Policy</a> and <a href="legal.html#ai">AI Policy</a>.',v_txt:"Activate your account: we sent a link to {email}. You need it to buy and save.",v_resend:"Resend",v_check:"I've activated it",v_ok:"Account activated.",paid_bar:"Thanks for your purchase! Your license key is on Polar's confirmation page and in your customer portal (Polar emails you access). Paste it below to unlock your Voice Pack.",lock_h:"Unlock your full Voice Pack",lock_p:"This is a preview. Pick a plan: pay once by card (Polar, taxes included) and get a key to activate the pack here.",plans:{pack:["Voice Pack","1 voice. Full instruction, banned phrases, rhythm sheet, download."],pro:["Voice Pack Pro","1 voice + human editor review, 30 before/after pairs, 2 rounds of tweaks. 48 h delivery."],agency:["Agencies","5 different voices, Pro review on all, client template."]},buy:"Buy",have_key:"Already bought? Paste your license key",activate:"Activate",validating:"Checking with Polar…",portal:"Can't find your key? Open it in your purchase portal",lic_ok:"Unlocked: {plan}.",unlocked:"Unlocked · {plan}",voices:"Voices used: {used} of {max}",lic_err:{invalid:"That key isn't valid. Copy it in full from Polar's email.",network:"We couldn't reach Polar. Check your connection and try again.",not_configured:"Payments aren't connected yet (config.js).",expired:"This key has expired.",status_revoked:"This key was revoked (refund or dispute). Write to us if it's a mistake.",status_disabled:"This key is disabled. Write to us.",unknown_product:"The key is valid but isn't for a Tono plan.",empty:"Paste your key first."},need_verify:"Activate your email before buying or unlocking.",need_login:"Log in to continue.",save_cloud:"Save to my account",saved_ok:"Saved to your account.",pro_req:"Request editor review",pro_req_ok:"Received. We'll email the reviewed version within 48 h.",voices_full:"Your plan allows {n} voice(s) and you've used: {names}. For another voice, buy another Voice Pack or the Agency plan.",locked:"Unlock the Voice Pack to copy, download or use it.",saved_h:"My Voice Packs",saved_p:"Packs you've saved to your account. Open them on any device.",saved_empty:"You haven't saved a Voice Pack yet.",open:"Open",del:"Delete",del_q:"Delete this Voice Pack from your account?",w_locked:"Writing in your voice needs the unlocked Voice Pack."},
+pt:{p_lede:"Sua voz transformada em instruções para sua IA. Adicione frases que você nunca diria e ajuste para quem escreve.",tab_saved:"Meus Voice Packs",privacy:"A análise roda no seu navegador. Na sua conta fica só o que você salvar.",gate_h:"Sua voz, pronta para qualquer IA.",gate_p:"Crie sua conta grátis para analisar sua voz. Você só paga se quiser o Voice Pack completo.",gate_pts:["Análise do seu ritmo, vocabulário e vícios: grátis.","Detector de frases de IA em 4 idiomas: grátis.","Voice Pack completo para ChatGPT, Claude ou Gemini: a partir de US$49, pagamento único."],gate_signup:"Criar conta grátis",gate_login:"Já tenho conta",gate_legal:'Ao continuar você aceita os <a href="legal.html#terms">Termos</a>, a <a href="legal.html#privacy">Privacidade</a> e a <a href="legal.html#ai">Política de IA</a> da Limly LLC.',v_txt:"Ative sua conta: enviamos um link para {email}. Você precisa dele para comprar e salvar.",v_resend:"Reenviar",v_check:"Já ativei",v_ok:"Conta ativada.",paid_bar:"Obrigado pela compra! Sua chave de licença aparece na página de confirmação da Polar e no seu portal de cliente (a Polar envia o acesso por e-mail). Cole abaixo para desbloquear seu Voice Pack.",lock_h:"Desbloqueie seu Voice Pack completo",lock_p:"Esta é uma prévia. Escolha um plano: pague uma vez com cartão (Polar, impostos inclusos) e receba uma chave para ativar o pack aqui.",plans:{pack:["Voice Pack","1 voz. Instrução completa, frases proibidas, ficha de ritmo, download."],pro:["Voice Pack Pro","1 voz + revisão de um editor humano, 30 pares antes/depois, 2 ajustes. Entrega em 48 h."],agency:["Agências","5 vozes diferentes, revisão Pro em todas, modelo para clientes."]},buy:"Comprar",have_key:"Já comprou? Cole sua chave de licença",activate:"Ativar",validating:"Validando com a Polar…",portal:"Não acha sua chave? Abra no seu portal de compras",lic_ok:"Desbloqueado: {plan}.",unlocked:"Desbloqueado · {plan}",voices:"Vozes usadas: {used} de {max}",lic_err:{invalid:"Essa chave não é válida. Copie inteira do e-mail da Polar.",network:"Não conseguimos falar com a Polar. Verifique a internet e tente de novo.",not_configured:"Os pagamentos ainda não estão conectados (config.js).",expired:"Esta chave expirou.",status_revoked:"Esta chave foi revogada (reembolso ou disputa). Fale com a gente se for engano.",status_disabled:"Esta chave está desativada. Fale com a gente.",unknown_product:"A chave é válida, mas não é de um plano do Tono.",empty:"Cole sua chave primeiro."},need_verify:"Ative seu e-mail antes de comprar ou desbloquear.",need_login:"Entre na sua conta para continuar.",save_cloud:"Salvar na minha conta",saved_ok:"Salvo na sua conta.",pro_req:"Pedir revisão do editor",pro_req_ok:"Recebido. Enviamos a versão revisada em 48 h para o e-mail da sua conta.",voices_full:"Seu plano permite {n} voz(es) e você já usou: {names}. Para outra voz, compre outro Voice Pack ou o plano Agências.",locked:"Desbloqueie o Voice Pack para copiar, baixar ou usar.",saved_h:"Meus Voice Packs",saved_p:"Os packs que você salvou na sua conta. Abra em qualquer dispositivo.",saved_empty:"Você ainda não salvou nenhum Voice Pack.",open:"Abrir",del:"Apagar",del_q:"Apagar este Voice Pack da sua conta?",w_locked:"Para escrever com sua voz você precisa do Voice Pack desbloqueado."},
+fr:{p_lede:"Votre voix transformée en instructions pour votre IA. Ajoutez les formules que vous ne diriez jamais et précisez pour qui vous écrivez.",tab_saved:"Mes Voice Packs",privacy:"L’analyse se fait dans votre navigateur. Votre compte ne garde que ce que vous enregistrez.",gate_h:"Votre voix, prête pour toutes les IA.",gate_p:"Créez un compte gratuit pour analyser votre voix. Vous ne payez que si vous voulez le Voice Pack complet.",gate_pts:["Analyse de votre rythme, de votre vocabulaire et de vos tics : gratuite.","Détecteur de formules d’IA en 4 langues : gratuit.","Voice Pack complet pour ChatGPT, Claude ou Gemini : dès 49 $, paiement unique."],gate_signup:"Créer un compte gratuit",gate_login:"J’ai déjà un compte",gate_legal:'En continuant, vous acceptez les <a href="legal.html#terms">Conditions</a>, la <a href="legal.html#privacy">Politique de confidentialité</a> et la <a href="legal.html#ai">Politique IA</a> de Limly LLC.',v_txt:"Activez votre compte : un lien a été envoyé à {email}. Il est nécessaire pour acheter et enregistrer.",v_resend:"Renvoyer",v_check:"C’est activé",v_ok:"Compte activé.",paid_bar:"Merci pour votre achat ! Votre clé de licence figure sur la page de confirmation de Polar et dans votre portail client (Polar vous envoie l’accès par e-mail). Collez-la ci-dessous pour débloquer votre Voice Pack.",lock_h:"Débloquez votre Voice Pack complet",lock_p:"Ceci est un aperçu. Choisissez une offre : paiement unique par carte (Polar, taxes incluses), puis une clé pour activer le pack ici.",plans:{pack:["Voice Pack","1 voix. Instruction complète, formules interdites, fiche rythme, téléchargement."],pro:["Voice Pack Pro","1 voix + relecture par un éditeur humain, 30 paires avant/après, 2 ajustements. Livré en 48 h."],agency:["Agences","5 voix différentes, relecture Pro pour toutes, modèle pour vos clients."]},buy:"Acheter",have_key:"Déjà acheté ? Collez votre clé de licence",activate:"Activer",validating:"Vérification auprès de Polar…",portal:"Clé introuvable ? Ouvrez votre portail d’achats",lic_ok:"Débloqué : {plan}.",unlocked:"Débloqué · {plan}",voices:"Voix utilisées : {used} sur {max}",lic_err:{invalid:"Cette clé n’est pas valide. Copiez-la en entier depuis l’e-mail de Polar.",network:"Impossible de joindre Polar. Vérifiez votre connexion et réessayez.",not_configured:"Les paiements ne sont pas encore connectés (config.js).",expired:"Cette clé a expiré.",status_revoked:"Cette clé a été révoquée (remboursement ou litige). Écrivez-nous en cas d’erreur.",status_disabled:"Cette clé est désactivée. Écrivez-nous.",unknown_product:"La clé est valide mais ne correspond à aucune offre Tono.",empty:"Collez d’abord votre clé."},need_verify:"Activez votre e-mail avant d’acheter ou de débloquer.",need_login:"Connectez-vous pour continuer.",save_cloud:"Enregistrer dans mon compte",saved_ok:"Enregistré dans votre compte.",pro_req:"Demander la relecture",pro_req_ok:"Bien reçu. La version relue arrive sous 48 h sur l’e-mail de votre compte.",voices_full:"Votre offre permet {n} voix et vous avez déjà utilisé : {names}. Pour une autre voix, achetez un autre Voice Pack ou l’offre Agences.",locked:"Débloquez le Voice Pack pour le copier, le télécharger ou l’utiliser.",saved_h:"Mes Voice Packs",saved_p:"Les packs enregistrés dans votre compte. Ouvrez-les sur n’importe quel appareil.",saved_empty:"Vous n’avez encore enregistré aucun Voice Pack.",open:"Ouvrir",del:"Supprimer",del_q:"Supprimer ce Voice Pack de votre compte ?",w_locked:"Pour écrire avec votre voix, il faut le Voice Pack débloqué."}};
+["es","en","pt","fr"].forEach(l=>Object.assign(UI[l],EXTRA[l]));
+
+const CFG=window.TONO_CONFIG||{};
+let ENT=null;          // {plan,key,displayKey}
+let PACKS=[];          // packs guardados en la cuenta
+const fill=(s,o)=>String(s).replace(/\{(\w+)\}/g,(m,k)=>o[k]!=null?o[k]:m);
+const unlocked=()=>!!ENT;
+const planName=p=>(t("plans")[p]||[p])[0];
+const isAdmin=()=>/[?&]admin=1/.test(location.search)||(Tono.user&&(CFG.adminEmails||[]).map(x=>x.toLowerCase()).includes((Tono.user.email||"").toLowerCase()));
+const needVerified=()=>{if(!Tono.accounts)return false;const u=Tono.user;if(!u){Tono.openAuth("login");toast(t("need_login"));return true}if(u.provider==="password"&&!u.verified){toast(t("need_verify"));return true}return false};
+/* Sin cuentas (Firebase aún no conectado): licencia y packs se guardan en este navegador */
+const G={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const guest=()=>!Tono.accounts;
+
+function scramble(s){return s.replace(/[A-Za-zÀ-ÿ]/g,()=>"abcdefghijklmnopqrstuvwxyz"[Math.random()*26|0])}
+const _renderPack=renderPack;
+renderPack=function(){
+  _renderPack();
+  if(!S.analysis)return;
+  const full=buildPack();const lines=full.split("\n");
+  const lock=!unlocked();
+  $("#lockBox").classList.toggle("hidden",!lock);
+  $("#unlockedRow").classList.toggle("hidden",lock);
+  $("#packBlur").classList.toggle("hidden",!lock);
+  ["#copyInstr","#dlMd","#printPack","#savePack"].forEach(s=>$(s).disabled=lock);
+  $("#proReq").classList.toggle("hidden",!(ENT&&(ENT.plan==="pro"||ENT.plan==="agency")));
+  if(lock){
+    const cut=Math.min(lines.length,Math.max(14,lines.findIndex(l=>/^```$/.test(l))+8));
+    $("#packOut").textContent=lines.slice(0,cut).join("\n");
+    $("#packBlur").textContent=scramble(lines.slice(cut,cut+22).join("\n"));
+    const pr=PRICE[S.ui];
+    $("#planCards").innerHTML=["pack","pro","agency"].map(k=>`<div class="plan${k==="pro"?" feat":""}"><div style="font-weight:600">${t("plans")[k][0]}</div><b>${pr[k]}</b><div class="small">${t("plans")[k][1]}</div><button class="btn ${k==="pro"?"primary":""}" data-buy="${k}">${t("buy")}</button></div>`).join("");
+    const dk=$("#demoKeys");dk.classList.toggle("hidden",!Tono.demo);if(Tono.demo)dk.textContent={es:"Modo demo: prueba con TONO-DEMO-PACK, TONO-DEMO-PRO o TONO-DEMO-AGENCY.",en:"Demo mode: try TONO-DEMO-PACK, TONO-DEMO-PRO or TONO-DEMO-AGENCY.",pt:"Modo demo: teste com TONO-DEMO-PACK, TONO-DEMO-PRO ou TONO-DEMO-AGENCY.",fr:"Mode démo : essayez TONO-DEMO-PACK, TONO-DEMO-PRO ou TONO-DEMO-AGENCY."}[S.ui];
+    const pl=$("#portalLink");if(CFG.polar&&CFG.polar.portalUrl){pl.href=CFG.polar.portalUrl;pl.parentElement.classList.remove("hidden")}else pl.parentElement.classList.add("hidden");
+  }else{
+    $("#planBadge").textContent="✓ "+fill(t("unlocked"),{plan:planName(ENT.plan)});
+    const names=voiceNames();$("#voicesInfo").textContent=fill(t("voices"),{used:names.length,max:(CFG.planVoices||{})[ENT.plan]||1});
+  }
+};
+function voiceNames(){return [...new Set(PACKS.map(p=>(p.name||"").trim().toLowerCase()).filter(Boolean))]}
+function slotOk(){ // ¿cabe esta voz en el plan?
+  if(!ENT)return false;const max=(CFG.planVoices||{})[ENT.plan]||1;const names=voiceNames();const me=(S.name||"").trim().toLowerCase();
+  if(!me||names.includes(me)||names.length<max)return true;
+  toast(fill(t("voices_full"),{n:max,names:names.join(", ")}));return false;
+}
+async function persistPack(silent){
+  if(!slotOk())return false;
+  const id="p_"+((S.name||"voz").trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu,"-")||"voz");
+  const rec={id,name:(S.name||"").trim()||"—",lang:S.analysis.lang,plan:ENT.plan,instruction:buildInstruction(),pack:buildPack(),analysis:S.analysis,ban:S.ban,audience:S.audience,addr:S.addr,texts:S.texts.filter(x=>x.trim())};
+  try{if(guest()){rec.savedAt=new Date().toISOString();const all=G.get("tono_guest_packs",[]).filter(p=>p.id!==id);all.unshift(rec);G.set("tono_guest_packs",all)}else await Tono.Data.savePack(rec);const i=PACKS.findIndex(p=>p.id===id);if(i>-1)PACKS[i]=rec;else PACKS.unshift(rec);if(!silent)toast(t("saved_ok"));renderPack();renderSaved();return true}
+  catch(e){toast(Tono.errorText(e));return false}
+}
+const gated=fn=>async()=>{if(!unlocked()){toast(t("locked"));$("#lockBox").scrollIntoView({behavior:"smooth",block:"center"});return}if(!slotOk())return;await persistPack(true);fn()};
+$("#copyInstr").onclick=gated(()=>navigator.clipboard.writeText(buildInstruction()).then(()=>toast(t("copied"))));
+$("#dlMd").onclick=gated(()=>dl(`voice-pack-${(S.name||"tono").toLowerCase().replace(/\W+/g,"-")}.md`,buildPack(),"text/markdown"));
+$("#printPack").onclick=gated(()=>window.print());
+$("#savePack").onclick=()=>{if(!unlocked()){toast(t("locked"));return}persistPack(false)};
+$("#copyPrompt").onclick=()=>{if(!S.analysis){toast(t("w_need"));return}if(!unlocked()){toast(t("w_locked"));S.tab="pack";save();render();return}navigator.clipboard.writeText(fullPrompt()).then(()=>toast(t("copied")))};
+const _runApi=$("#runApi").onclick;$("#runApi").onclick=()=>{if(!unlocked()){toast(t("w_locked"));return}_runApi()};
+$("#proReq").onclick=async()=>{if(needVerified())return;try{await Tono.Data.saveProRequest({email:(ENT&&ENT.email)||"",name:S.name||"",plan:ENT.plan,licenseDisplay:ENT.displayKey||"",instruction:buildInstruction(),texts:S.texts.filter(x=>x.trim()).slice(0,20),ban:S.ban,audience:S.audience});toast(t("pro_req_ok"))}catch(e){toast(Tono.errorText(e))}};
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-buy]");if(b){if(needVerified())return;Tono.Checkout.go(b.dataset.buy);return}
+  const o=e.target.closest("[data-open]");if(o){const p=PACKS.find(x=>x.id===o.dataset.open);if(p){Object.assign(S,{name:p.name,analysis:p.analysis,ban:p.ban||[],audience:p.audience||"",addr:p.addr||0,texts:(p.texts&&p.texts.length?p.texts:S.texts),tab:"pack"});save();render();scrollTo(0,0)}return}
+  const d=e.target.closest("[data-delpack]");if(d){{const id=d.dataset.delpack;const done=()=>{PACKS=PACKS.filter(x=>x.id!==id);renderSaved();renderPack()};if(guest()){G.set("tono_guest_packs",G.get("tono_guest_packs",[]).filter(x=>x.id!==id));done()}else Tono.Data.deletePack(id).then(done)}return}
+});
+async function activate(key){
+  const msg=$("#keyMsg");if(needVerified())return;
+  msg.textContent=t("validating");
+  const r=await Tono.License.validate(key);
+  if(!r.ok){msg.textContent=(t("lic_err")[r.error]||t("lic_err").invalid);return}
+  ENT={plan:r.plan,key:String(key).trim(),displayKey:r.displayKey||"",email:r.email||""};
+  if(guest())G.set("tono_guest_license",{key:ENT.key});
+  else try{await Tono.Data.saveProfile({license:{key:ENT.key,plan:ENT.plan,validatedAt:new Date().toISOString()}})}catch(e){}
+  msg.textContent=fill(t("lic_ok"),{plan:planName(ENT.plan)});$("#keyIn").value="";
+  $("#paidBar").classList.add("hidden");renderPack();
+}
+$("#keyGo").onclick=()=>activate($("#keyIn").value);
+document.addEventListener("tono:soon",()=>toast({es:"Las compras abren en unos días. Escríbenos desde la web y te avisamos primero.",en:"Purchases open in a few days. Write to us from the site and we'll tell you first.",pt:"As compras abrem em poucos dias. Escreva para nós pelo site e avisamos primeiro.",fr:"Les achats ouvrent dans quelques jours. Écrivez-nous depuis le site et vous serez prévenu en premier."}[S.ui]));
+$("#keyIn").onkeydown=e=>{if(e.key==="Enter")activate($("#keyIn").value)};
+
+function renderSaved(){
+  const el=$("#savedList");if(!el)return;
+  el.innerHTML=PACKS.length?PACKS.map(p=>`<div class="saved-item"><div><b>${esc(p.name)}</b><div class="small">${LANG_NAMES[p.lang]||""} · ${esc(planName(p.plan||""))} · ${esc((p.savedAt||"").slice(0,10))}</div></div><span class="sp"></span><button class="btn sm primary" data-open="${esc(p.id)}">${t("open")}</button><button class="btn sm" data-delpack="${esc(p.id)}">${t("del")}</button></div>`).join(""):`<div class="empty">${t("saved_empty")}</div>`;
+}
+function renderAccess(){
+  const u=Tono.user||(guest()?{guest:true}:null);
+  document.body.classList.toggle("noauth",!u);
+  $("#gate").classList.toggle("hidden",!!u);
+  $$("[data-view]").forEach(v=>{if(!u)v.classList.add("hidden")});
+  $$(".tab").forEach(b=>b.disabled=!u);
+  $$(".admin-only").forEach(b=>b.classList.toggle("hidden",!isAdmin()));
+  $("#savePack").classList.toggle("hidden",guest());
+  const vb=$("#verifyBar");const needV=!!(u&&u.provider==="password"&&!u.verified);
+  vb.classList.toggle("hidden",!needV);if(needV)$("#verifyTxt").textContent=fill(t("v_txt"),{email:u.email});
+  $("#gatePoints").innerHTML=t("gate_pts").map(x=>`<li>${x}</li>`).join("");
+  $("#gateLegal").innerHTML=t("gate_legal");
+}
+const _render=render;
+render=function(){_render();renderAccess();renderPack();renderSaved();Tono.setLang(S.ui)};
+$("#gateSignup").onclick=()=>Tono.openAuth("signup");
+$("#gateLogin").onclick=()=>Tono.openAuth("login");
+$("#vResend").onclick=async()=>{try{await Tono.Auth.resend();toast(Tono.t("sent"))}catch(e){toast(Tono.errorText(e))}};
+$("#vCheck").onclick=async()=>{const u=await Tono.Auth.refresh();if(u&&u.verified){toast(t("v_ok"));render()}else toast(Tono.t("notVerified"))};
+
+let lastUid=null;
+async function onUserChange(u){
+  if(guest()){
+    if(lastUid!=="guest"){lastUid="guest";PACKS=G.get("tono_guest_packs",[]);const g=G.get("tono_guest_license",null);
+      if(g&&g.key){try{const r=await Tono.License.validate(g.key);if(r.ok)ENT={plan:r.plan,key:g.key,displayKey:r.displayKey||"",email:r.email||""}}catch(e){}}}
+    render();return;
+  }
+  if((u&&u.uid)!==lastUid){
+    lastUid=u&&u.uid;ENT=null;PACKS=[];
+    if(u){
+      try{PACKS=await Tono.Data.listPacks()}catch(e){}
+      try{const prof=await Tono.Data.getProfile();if(prof&&prof.license&&prof.license.key){const r=await Tono.License.validate(prof.license.key);if(r.ok)ENT={plan:r.plan,key:prof.license.key,displayKey:r.displayKey||""}}}catch(e){}
+    }
+  }
+  render();
+}
+Tono.mountAccount($("#acct"));
+Tono.ready.then(()=>{
+  Tono.onUser(onUserChange);
+  const q=new URLSearchParams(location.search);
+  if(q.get("checkout_id")){S.tab="pack";save();$("#paidBar").classList.remove("hidden");history.replaceState(null,"",location.pathname+location.hash)}
+  if(q.get("verified")){Tono.Auth.refresh().then(()=>render())}
+  render();
+});
+</script>
+</body>
+</html>
